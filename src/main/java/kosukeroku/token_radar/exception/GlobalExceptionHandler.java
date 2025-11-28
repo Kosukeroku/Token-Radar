@@ -145,4 +145,52 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(CoinNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleCoinNotFound(CoinNotFoundException ex,
+                                                               HttpServletRequest request) {
+        log.warn("Coin not found: {}", ex.getMessage());
+
+        ErrorResponseDto error = ErrorResponseDto.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error("Coin Not Found")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(TrackedCurrencyAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponseDto> handleTrackedCurrencyExists(TrackedCurrencyAlreadyExistsException ex,
+                                                                        HttpServletRequest request) {
+        log.warn("Tracked currency already exists: {}", ex.getMessage());
+
+        ErrorResponseDto error = ErrorResponseDto.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.CONFLICT.value())
+                .error("Currency Already Tracked")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(TrackedCurrencyNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleTrackedCurrencyNotFound(TrackedCurrencyNotFoundException ex,
+                                                                          HttpServletRequest request) {
+        log.warn("Tracked currency not found: {}", ex.getMessage());
+
+        ErrorResponseDto error = ErrorResponseDto.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error("Tracked Currency Not Found")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
 }
