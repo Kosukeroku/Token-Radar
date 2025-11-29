@@ -19,9 +19,14 @@ public class CoinController {
     private final CoinService coinService;
 
     @GetMapping("/dashboard")
-    public Page<Coin> getDashboard(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    public Page<Coin> getDashboard(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("marketCapRank").ascending());
         return coinService.getDashboard(pageable);
+    }
+
+    @GetMapping("/search")
+    public List<Coin> searchCoins(@RequestParam String query) {
+        return coinService.searchCoins(query);
     }
 }
