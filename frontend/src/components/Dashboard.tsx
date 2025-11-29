@@ -5,12 +5,38 @@ import { useDebounce } from '../hooks/useDebounce'
 import { formatPrice, formatMarketCap } from '../utils/formatters'
 import { Loader } from '../components/Loader'
 import { ErrorDisplay } from '../components/ErrorDisplay'
-import {useState} from "react";
+import { useState, useRef, useEffect } from 'react'
 
+const SearchInput: React.FC<{
+    value: string;
+    onChange: (value: string) => void;
+    loading?: boolean;
+    inputRef: React.RefObject<HTMLInputElement | null>;
+}> = ({ value, onChange, loading, inputRef }) => (
+    <div className="relative max-w-md">
+        <input
+            ref={inputRef}
+            type="text"
+            placeholder="Search coins..."
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 pl-10 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+        />
+        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+            🔍
+        </div>
+        {loading && (
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+            </div>
+        )}
+    </div>
+)
 
 const Dashboard: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams()
     const [searchTerm, setSearchTerm] = useState('')
+    const searchInputRef = useRef<HTMLInputElement>(null)
 
     const debouncedSearchTerm = useDebounce(searchTerm, 300)
     const currentPage = Math.max(0, parseInt(searchParams.get('page') || '1') - 1)
@@ -24,6 +50,18 @@ const Dashboard: React.FC = () => {
     const coins = isSearchMode ? searchData : coinsData?.coins
     const isLoading = isSearchMode ? searchLoading : coinsLoading
     const error = isSearchMode ? searchError : coinsError
+
+    useEffect(() => {
+        if (searchInputRef.current) {
+            searchInputRef.current.focus()
+        }
+    }, [])
+
+    useEffect(() => {
+        if (searchInputRef.current && !searchLoading && searchTerm) {
+            searchInputRef.current.focus()
+        }
+    }, [searchLoading, searchTerm])
 
     const handlePageChange = (newPage: number) => {
         const newSearchParams = new URLSearchParams(searchParams)
@@ -39,10 +77,23 @@ const Dashboard: React.FC = () => {
 
     if (error) {
         return (
-            <ErrorDisplay
-                message={`Failed to load data: ${error.message}`}
-                onRetry={() => window.location.reload()} // Простой релоад
-            />
+            <div className="min-h-screen bg-gray-900 text-white p-4">
+                <div className="mb-6">
+                    <h1 className="text-3xl font-bold mb-2 font-sans">
+                        {isSearchMode ? 'Search Results' : 'Live Cryptocurrency Prices'}
+                    </h1>
+                    <SearchInput
+                        value={searchTerm}
+                        onChange={setSearchTerm}
+                        loading={searchLoading}
+                        inputRef={searchInputRef}
+                    />
+                </div>
+                <ErrorDisplay
+                    message={`Failed to load data: ${error.message}`}
+                    onRetry={() => window.location.reload()}
+                />
+            </div>
         )
     }
 
@@ -54,19 +105,12 @@ const Dashboard: React.FC = () => {
                     <h1 className="text-3xl font-bold mb-2 font-sans">
                         {isSearchMode ? 'Search Results' : 'Live Cryptocurrency Prices'}
                     </h1>
-
-                    <div className="relative max-w-md">
-                        <input
-                            type="text"
-                            placeholder="Search coins..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 pl-10 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-                        />
-                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                            🔍
-                        </div>
-                    </div>
+                    <SearchInput
+                        value={searchTerm}
+                        onChange={setSearchTerm}
+                        loading={searchLoading}
+                        inputRef={searchInputRef}
+                    />
                 </div>
 
                 {/* empty table with 'no coins found' message */}
@@ -100,24 +144,12 @@ const Dashboard: React.FC = () => {
                 <h1 className="text-3xl font-bold mb-2 font-sans">
                     {isSearchMode ? 'Search Results' : 'Live Cryptocurrency Prices'}
                 </h1>
-
-                <div className="relative max-w-md">
-                    <input
-                        type="text"
-                        placeholder="Search coins..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 pl-10 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-                    />
-                    <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                        🔍
-                    </div>
-                    {searchLoading && (
-                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                        </div>
-                    )}
-                </div>
+                <SearchInput
+                    value={searchTerm}
+                    onChange={setSearchTerm}
+                    loading={searchLoading}
+                    inputRef={searchInputRef}
+                />
             </div>
 
             {/* table */}
