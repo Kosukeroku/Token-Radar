@@ -3,6 +3,7 @@ package kosukeroku.token_radar.dto;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 public class CoinResponseDto {
@@ -16,4 +17,13 @@ public class CoinResponseDto {
     private Integer marketCapRank;
     private BigDecimal marketCap;
     private BigDecimal totalVolume;
+    private Double priceChangePercentage1h;
+    private Double priceChangePercentage7d;
+    private Double priceChangePercentage30d;
+    private String sparklineData;
+    private BigDecimal high24h;
+    private BigDecimal low24h;
+    private BigDecimal ath;
+    private Double athChangePercentage;
+    private LocalDateTime athDate;
 }

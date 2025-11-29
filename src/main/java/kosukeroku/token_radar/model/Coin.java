@@ -1,5 +1,6 @@
 package kosukeroku.token_radar.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
@@ -13,17 +14,34 @@ import java.time.LocalDateTime;
 @Data
 public class Coin {
     @Id
-    private String id;        // "bitcoin"
-    private String symbol;    // "btc"
-    private String name;      // "Bitcoin"
+    private String id;
+    private String symbol;
+    private String name;
     private boolean active = true;
     private LocalDateTime lastUpdated;
     private String imageUrl;
     private Integer marketCapRank;
 
+    // current prices
     private BigDecimal currentPrice;
     private Double priceChange24h;
     private Double priceChangePercentage24h;
     private BigDecimal marketCap;
     private BigDecimal totalVolume;
+
+    // price changes
+    private Double priceChangePercentage1h;
+    private Double priceChangePercentage7d;
+    private Double priceChangePercentage30d;
+
+    @Column(columnDefinition = "TEXT")
+    private String sparklineData; // sparkline in json
+
+    private BigDecimal high24h;
+    private BigDecimal low24h;
+
+    // ATH data
+    private BigDecimal ath;
+    private Double athChangePercentage;
+    private LocalDateTime athDate;
 }
