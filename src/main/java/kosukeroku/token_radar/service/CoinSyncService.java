@@ -93,20 +93,23 @@ public class CoinSyncService {
                     .map(dto -> {
                         Coin coin = coinMapper.toEntity(dto);
                         // manually processing sparkline and ath date fields
-                        if (dto.getSparkline_in_7d() != null && dto.getSparkline_in_7d().getPrice() != null) {
+                        if (dto.getSparklineIn7d() != null && dto.getSparklineIn7d().getPrice() != null) {
                             try {
-                                coin.setSparklineData(new ObjectMapper().writeValueAsString(dto.getSparkline_in_7d().getPrice()));
-                            } catch (Exception e) {
-                                // ignore
-                            }
+                                coin.setSparklineData(new ObjectMapper().writeValueAsString(
+                                        dto.getSparklineIn7d().getPrice()
+                                ));
+                            } catch (Exception e) { /* ignore */ }
                         }
-                        if (dto.getAth_date() != null) {
+
+                        if (dto.getAthDate() != null) {
                             try {
-                                coin.setAthDate(LocalDateTime.parse(dto.getAth_date(), DateTimeFormatter.ISO_DATE_TIME));
-                            } catch (Exception e) {
-                                // ignore
-                            }
+                                coin.setAthDate(LocalDateTime.parse(
+                                        dto.getAthDate(),
+                                        DateTimeFormatter.ISO_DATE_TIME
+                                ));
+                            } catch (Exception e) { /* ignore */ }
                         }
+
                         return coin;
                     })
                     .collect(Collectors.toList());
@@ -120,33 +123,35 @@ public class CoinSyncService {
             if (!priceDtos.isEmpty()) {
                 priceDtos.forEach(dto -> {
                     coinRepository.findById(dto.getId()).ifPresent(coin -> {
-                        // prices, marketcap, volume etc.
-                        coin.setCurrentPrice(dto.getCurrent_price());
-                        coin.setPriceChange24h(dto.getPrice_change_24h());
-                        coin.setPriceChangePercentage24h(dto.getPrice_change_percentage_24h());
-                        coin.setMarketCap(dto.getMarket_cap());
-                        coin.setTotalVolume(dto.getTotal_volume());
-                        coin.setPriceChangePercentage1h(dto.getPrice_change_percentage_1h_in_currency());
-                        coin.setPriceChangePercentage7d(dto.getPrice_change_percentage_7d_in_currency());
-                        coin.setPriceChangePercentage30d(dto.getPrice_change_percentage_30d_in_currency());
-                        coin.setHigh24h(dto.getHigh_24h());
-                        coin.setLow24h(dto.getLow_24h());
+                        coin.setCurrentPrice(dto.getCurrentPrice());
+                        coin.setPriceChange24h(dto.getPriceChange24h());
+                        coin.setPriceChangePercentage24h(dto.getPriceChangePercentage24h());
+                        coin.setMarketCap(dto.getMarketCap());
+                        coin.setTotalVolume(dto.getTotalVolume());
+                        coin.setPriceChangePercentage1h(dto.getPriceChangePercentage1h());
+                        coin.setPriceChangePercentage7d(dto.getPriceChangePercentage7d());
+                        coin.setPriceChangePercentage30d(dto.getPriceChangePercentage30d());
+                        coin.setHigh24h(dto.getHigh24h());
+                        coin.setLow24h(dto.getLow24h());
                         coin.setAth(dto.getAth());
-                        coin.setAthChangePercentage(dto.getAth_change_percentage());
+                        coin.setAthChangePercentage(dto.getAthChangePercentage());
 
-                        // sparkline data
-                        if (dto.getSparkline_in_7d() != null && dto.getSparkline_in_7d().getPrice() != null) {
+                        if (dto.getSparklineIn7d() != null && dto.getSparklineIn7d().getPrice() != null) {
                             try {
-                                coin.setSparklineData(new ObjectMapper().writeValueAsString(dto.getSparkline_in_7d().getPrice()));
+                                coin.setSparklineData(new ObjectMapper().writeValueAsString(
+                                        dto.getSparklineIn7d().getPrice()
+                                ));
                             } catch (Exception e) {
                                 log.warn("Failed to serialize sparkline data for coin {}", dto.getId());
                             }
                         }
 
-                        // ATH data
-                        if (dto.getAth_date() != null) {
+                        if (dto.getAthDate() != null) {
                             try {
-                                coin.setAthDate(LocalDateTime.parse(dto.getAth_date(), DateTimeFormatter.ISO_DATE_TIME));
+                                coin.setAthDate(LocalDateTime.parse(
+                                        dto.getAthDate(),
+                                        DateTimeFormatter.ISO_DATE_TIME
+                                ));
                             } catch (Exception e) {
                                 log.warn("Failed to parse ATH date for coin {}", dto.getId());
                             }
