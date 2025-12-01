@@ -20,5 +20,5 @@ public interface CoinRepository extends JpaRepository<Coin, String> {
 
     @Modifying
     @Query("DELETE FROM Coin c WHERE c.active = false")
-    void deleteByActiveFalse();
+    int deleteByActiveFalse();
 }
