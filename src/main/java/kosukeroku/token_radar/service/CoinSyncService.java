@@ -135,6 +135,9 @@ public class CoinSyncService {
                         coin.setLow24h(dto.getLow24h());
                         coin.setAth(dto.getAth());
                         coin.setAthChangePercentage(dto.getAthChangePercentage());
+                        coin.setAtl(dto.getAtl());
+                        coin.setAtlChangePercentage(dto.getAtlChangePercentage());
+                        coin.setCirculatingSupply(dto.getCirculatingSupply());
 
                         if (dto.getSparklineIn7d() != null && dto.getSparklineIn7d().getPrice() != null) {
                             try {
@@ -154,6 +157,14 @@ public class CoinSyncService {
                                 ));
                             } catch (Exception e) {
                                 log.warn("Failed to parse ATH date for coin {}", dto.getId());
+                            }
+                        }
+
+                        if (dto.getAtlDate() != null) {
+                            try {
+                                coin.setAtlDate(LocalDateTime.parse(dto.getAtlDate(), DateTimeFormatter.ISO_DATE_TIME));
+                            } catch (Exception e) {
+                                log.warn("Failed to parse ATL date for coin {}", dto.getId());
                             }
                         }
 

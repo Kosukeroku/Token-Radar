@@ -1,5 +1,6 @@
 package kosukeroku.token_radar.service;
 
+import kosukeroku.token_radar.exception.CoinNotFoundException;
 import kosukeroku.token_radar.model.Coin;
 import kosukeroku.token_radar.repository.CoinRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -171,25 +173,25 @@ class CoinServiceTest {
         when(coinRepository.findById("bitcoin")).thenReturn(Optional.of(bitcoin));
 
         // when
-        Optional<Coin> result = coinService.getCoinById("bitcoin");
+        Coin result = coinService.getCoinById("bitcoin");
 
         // then
-        assertThat(result).isPresent();
-        assertThat(result.get()).isEqualTo(bitcoin);
+        assertThat(result).isNotNull();
+        assertThat(result).isEqualTo(bitcoin);
         verify(coinRepository).findById("bitcoin");
     }
 
     @Test
-    void getCoinById_ShouldReturnEmpty_WhenCoinDoesNotExist() {
+    void getCoinById_ShouldThrowException_WhenCoinDoesNotExist() {
         // given
-        when(coinRepository.findById("non-existant")).thenReturn(Optional.empty());
-
-        // when
-        Optional<Coin> result = coinService.getCoinById("non-existant");
+        when(coinRepository.findById("non-existent")).thenReturn(Optional.empty());
 
         // then
-        assertThat(result).isEmpty();
-        verify(coinRepository).findById("non-existant");
+        assertThatThrownBy(() -> coinService.getCoinById("non-existent"))
+                .isInstanceOf(CoinNotFoundException.class)
+                .hasMessage("Coin not found: non-existent");
+
+        verify(coinRepository).findById("non-existent");
     }
 
     @Test

@@ -1,15 +1,14 @@
 package kosukeroku.token_radar.controller;
 
 import kosukeroku.token_radar.dto.CoinResponseDto;
+import kosukeroku.token_radar.exception.CoinNotFoundException;
 import kosukeroku.token_radar.mapper.CoinMapper;
 import kosukeroku.token_radar.model.Coin;
 import kosukeroku.token_radar.service.CoinService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,5 +35,11 @@ public class CoinController {
         return coins.stream()
                 .map(coinMapper::toResponseDto)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/{coinId}")
+    public CoinResponseDto getCoin(@PathVariable String coinId) {
+        Coin coin = coinService.getCoinById(coinId);
+        return coinMapper.toResponseDto(coin);
     }
 }

@@ -12,6 +12,7 @@ public interface CoinMapper {
     @Mapping(target = "lastUpdated", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "sparklineData", ignore = true) // mapping manually in service
     @Mapping(target = "athDate", ignore = true) // mapping manually in service
+    @Mapping(target = "atlDate", ignore = true) // mapping manually in service
     Coin toEntity(CoinGeckoCoinDto dto);
 
     CoinResponseDto toResponseDto(Coin coin);

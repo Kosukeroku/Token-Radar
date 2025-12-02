@@ -62,4 +62,16 @@ public class CoinGeckoCoinDto {
     public static class SparklineData {
         private List<Double> price;
     }
+
+    @JsonProperty("atl")
+    private BigDecimal atl;
+
+    @JsonProperty("atl_change_percentage")
+    private Double atlChangePercentage;
+
+    @JsonProperty("atl_date")
+    private String atlDate;
+
+    @JsonProperty("circulating_supply")
+    private BigDecimal circulatingSupply;
 }

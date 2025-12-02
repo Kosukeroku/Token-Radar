@@ -26,4 +26,8 @@ public class CoinResponseDto {
     private BigDecimal ath;
     private Double athChangePercentage;
     private LocalDateTime athDate;
+    private BigDecimal atl;
+    private Double atlChangePercentage;
+    private LocalDateTime atlDate;
+    private BigDecimal circulatingSupply;
 }

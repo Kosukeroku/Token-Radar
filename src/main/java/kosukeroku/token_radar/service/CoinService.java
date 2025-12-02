@@ -1,5 +1,6 @@
 package kosukeroku.token_radar.service;
 
+import kosukeroku.token_radar.exception.CoinNotFoundException;
 import kosukeroku.token_radar.model.Coin;
 import kosukeroku.token_radar.repository.CoinRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +42,8 @@ public class CoinService {
                 .collect(Collectors.toList());
     }
 
-    public Optional<Coin> getCoinById(String coinId) {
-        return coinRepository.findById(coinId);
+    public Coin getCoinById(String coinId) {
+        return coinRepository.findById(coinId)
+                .orElseThrow(() -> new CoinNotFoundException(coinId));
     }
 }

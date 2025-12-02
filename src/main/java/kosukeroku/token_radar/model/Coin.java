@@ -44,4 +44,13 @@ public class Coin {
     private BigDecimal ath;
     private Double athChangePercentage;
     private LocalDateTime athDate;
+
+    //ATL data
+    private BigDecimal atl;
+    private Double atlChangePercentage;
+    private LocalDateTime atlDate;
+
+    // supply
+    @Column(precision = 19, scale = 8)
+    private BigDecimal circulatingSupply;
 }
