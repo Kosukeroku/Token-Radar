@@ -15,7 +15,7 @@ export const useCoinDetail = (coinId: string) => {
             }
         },
         enabled: !!coinId,
-        staleTime: 2 * 60 * 1000, // 2 минуты
+        staleTime: 2 * 60 * 1000, // 2 mins
         retry: 1,
         retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
     });

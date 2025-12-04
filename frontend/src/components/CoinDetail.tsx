@@ -84,7 +84,7 @@ const CoinDetail: React.FC = () => {
                                     aria-label={`Track ${coin.name}`}
                                     className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-semibold transition-colors"
                                 >
-                                    📈 Track
+                                    Track
                                 </button>
                             </div>
                             <div className="flex items-center gap-2 mt-1">
