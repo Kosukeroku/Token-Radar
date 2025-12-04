@@ -34,7 +34,7 @@ public class Coin {
     private Double priceChangePercentage7d;
     private Double priceChangePercentage30d;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(columnDefinition = "TEXT") // VARCHAR may be not sufficient
     private String sparklineData; // sparkline in json
 
     private BigDecimal high24h;
@@ -51,6 +51,5 @@ public class Coin {
     private LocalDateTime atlDate;
 
     // supply
-    @Column(precision = 19, scale = 8)
     private BigDecimal circulatingSupply;
 }

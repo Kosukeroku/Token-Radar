@@ -12,6 +12,7 @@ public class CoinResponseDto {
     private String name;
     private String imageUrl;
     private BigDecimal currentPrice;
+    private LocalDateTime lastUpdated;
     private Double priceChange24h;
     private Double priceChangePercentage24h;
     private Integer marketCapRank;
