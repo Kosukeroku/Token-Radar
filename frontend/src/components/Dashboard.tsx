@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useCoins } from '../hooks/useCoins'
 import { useSearchCoins } from '../hooks/useSearchCoins'
 import { useDebounce } from '../hooks/useDebounce'
@@ -37,6 +37,7 @@ const Dashboard: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams()
     const [searchTerm, setSearchTerm] = useState('')
     const searchInputRef = useRef<HTMLInputElement>(null)
+    const navigate = useNavigate() // ← ДОБАВИЛИ useNavigate
 
     const debouncedSearchTerm = useDebounce(searchTerm, 300)
     const currentPage = Math.max(0, parseInt(searchParams.get('page') || '1') - 1)
@@ -71,6 +72,10 @@ const Dashboard: React.FC = () => {
             newSearchParams.set('page', (newPage + 1).toString())
         }
         setSearchParams(newSearchParams)
+    }
+
+    const handleRowClick = (coinId: string) => {
+        navigate(`/coin/${coinId}`)
     }
 
     if (isLoading) return <Loader />
@@ -168,7 +173,11 @@ const Dashboard: React.FC = () => {
                         </thead>
                         <tbody>
                         {coins.map((coin) => (
-                            <tr key={coin.id} className="border-b border-gray-700 hover:bg-gray-700/50">
+                            <tr
+                                key={coin.id}
+                                className="border-b border-gray-700 hover:bg-gray-700/50 cursor-pointer transition-colors duration-150"
+                                onClick={() => handleRowClick(coin.id)}
+                            >
                                 <td className="py-3 px-2 text-gray-400 text-sm w-12">{coin.marketCapRank}</td>
                                 <td className="py-3 px-2">
                                     <div className="flex items-center space-x-2">
@@ -190,11 +199,11 @@ const Dashboard: React.FC = () => {
                                     {formatPrice(coin.currentPrice)}
                                 </td>
                                 <td className="py-3 px-4 text-right">
-                    <span className={`text-sm ${
-                        coin.priceChange24h >= 0 ? 'text-green-400' : 'text-red-400'
-                    }`}>
-                      {coin.priceChangePercentage24h?.toFixed(2)}%
-                    </span>
+                                    <span className={`text-sm ${
+                                        coin.priceChangePercentage24h >= 0 ? 'text-green-400' : 'text-red-400'
+                                    }`}>
+                                        {coin.priceChangePercentage24h?.toFixed(2)}%
+                                    </span>
                                 </td>
                                 <td className="py-3 px-4 text-right text-white text-sm">
                                     {formatMarketCap(coin.marketCap)}
@@ -215,19 +224,19 @@ const Dashboard: React.FC = () => {
                     <button
                         onClick={() => handlePageChange(Math.max(0, currentPage - 1))}
                         disabled={currentPage === 0}
-                        className="px-3 py-1 bg-gray-800 border border-gray-700 rounded text-white text-sm disabled:opacity-50 hover:bg-gray-700"
+                        className="px-3 py-1 bg-gray-800 border border-gray-700 rounded text-white text-sm disabled:opacity-50 hover:bg-gray-700 transition-colors"
                     >
                         Previous
                     </button>
 
                     <span className="px-3 py-1 text-sm">
-            Page {currentPage + 1} of {coinsData.totalPages}
-          </span>
+                        Page {currentPage + 1} of {coinsData.totalPages}
+                    </span>
 
                     <button
                         onClick={() => handlePageChange(Math.min(coinsData.totalPages - 1, currentPage + 1))}
                         disabled={currentPage >= coinsData.totalPages - 1}
-                        className="px-3 py-1 bg-gray-800 border border-gray-700 rounded text-white text-sm disabled:opacity-50 hover:bg-gray-700"
+                        className="px-3 py-1 bg-gray-800 border border-gray-700 rounded text-white text-sm disabled:opacity-50 hover:bg-gray-700 transition-colors"
                     >
                         Next
                     </button>
