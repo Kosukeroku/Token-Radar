@@ -1,23 +1,23 @@
-import React, { useEffect, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useCoinDetail } from '../hooks/useCoinDetail';
-import { Loader } from './Loader';
-import { ErrorDisplay } from './ErrorDisplay';
+import React, {useEffect, useMemo} from 'react';
+import {useNavigate, useParams} from 'react-router-dom';
+import {useCoinDetail} from '../hooks/useCoinDetail';
+import {Loader} from './Loader';
+import {ErrorDisplay} from './ErrorDisplay';
 import {
-    formatPrice,
+    formatDate,
+    formatDateTime,
     formatMarketCap,
     formatNumber,
-    formatDate,
     formatPercentage,
-    formatDateTime,
+    formatPrice,
     timeAgo
 } from '../utils/formatters';
-import { SparklineChart } from './SparklineChart';
+import {SparklineChart} from './SparklineChart';
 
 const CoinDetail: React.FC = () => {
-    const { coinId } = useParams<{ coinId: string }>();
+    const {coinId} = useParams<{ coinId: string }>();
     const navigate = useNavigate();
-    const { data: coin, isLoading, error, refetch } = useCoinDetail(coinId || '');
+    const {data: coin, isLoading, error, refetch} = useCoinDetail(coinId || '');
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -40,7 +40,7 @@ const CoinDetail: React.FC = () => {
         }
     }, [coin?.sparklineData]);
 
-    if (isLoading) return <Loader />;
+    if (isLoading) return <Loader/>;
 
     if (error || !coin) {
         return (
@@ -234,6 +234,53 @@ const CoinDetail: React.FC = () => {
                                     >
                     {formatPercentage(coin.athChangePercentage)}
                   </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="bg-gray-800 rounded-xl p-6">
+                        <h2 className="text-xl font-bold mb-4">Market Analytics</h2>
+                        <div className="space-y-4">
+                            {/* volume/market cap ratio */}
+                            <div className="p-3 bg-gray-900/50 rounded-lg">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-gray-400">Volume/MCap Ratio</span>
+                                    <span className="font-bold text-lg text-blue-300">
+          {((coin.totalVolume / coin.marketCap) * 100).toFixed(2)}%
+        </span>
+                                </div>
+                                <div className="mt-1 text-sm text-gray-500">
+                                    {(() => {
+                                        const ratio = (coin.totalVolume / coin.marketCap) * 100;
+                                        if (ratio > 10) return 'High trading volume relative to market cap';
+                                        if (ratio > 5) return 'Healthy trading activity';
+                                        return 'Moderate trading volume';
+                                    })()}
+                                </div>
+                            </div>
+
+                            {/* current vs ATH */}
+                            <div className="p-3 bg-gray-900/50 rounded-lg">
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="text-gray-400">Current vs ATH</span>
+                                    <span className={`font-bold text-lg ${
+                                        (coin.currentPrice / coin.ath) > 0.9 ? 'text-green-400' :
+                                            (coin.currentPrice / coin.ath) > 0.7 ? 'text-yellow-400' : 'text-red-400'
+                                    }`}>
+          {((coin.currentPrice / coin.ath) * 100).toFixed(1)}%
+        </span>
+                                </div>
+                                <div className="w-full bg-gray-700 h-2 rounded-full overflow-hidden">
+                                    <div
+                                        className="h-full bg-gradient-to-r from-red-500 via-yellow-500 to-green-500"
+                                        style={{
+                                            width: `${Math.min((coin.currentPrice / coin.ath) * 100, 100)}%`
+                                        }}
+                                    />
+                                </div>
+                                <div className="flex justify-between text-xs text-gray-400 mt-1">
+                                    <span>0%</span>
+                                    <span>ATH: {formatPrice(coin.ath)}</span>
                                 </div>
                             </div>
                         </div>
