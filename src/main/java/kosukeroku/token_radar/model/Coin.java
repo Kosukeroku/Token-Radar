@@ -23,10 +23,16 @@ public class Coin {
     private Integer marketCapRank;
 
     // current prices
+    @Column(precision = 30, scale = 12)
     private BigDecimal currentPrice;
+
     private Double priceChange24h;
     private Double priceChangePercentage24h;
+
+    @Column(precision = 30, scale = 2)
     private BigDecimal marketCap;
+
+    @Column(precision = 30, scale = 2)
     private BigDecimal totalVolume;
 
     // price changes
@@ -34,22 +40,30 @@ public class Coin {
     private Double priceChangePercentage7d;
     private Double priceChangePercentage30d;
 
-    @Column(columnDefinition = "TEXT") // VARCHAR may be not sufficient
-    private String sparklineData; // sparkline in json
+    @Column(columnDefinition = "TEXT")
+    private String sparklineData;
 
+    @Column(precision = 30, scale = 12)
     private BigDecimal high24h;
+
+    @Column(precision = 30, scale = 12)
     private BigDecimal low24h;
 
     // ATH data
+    @Column(precision = 30, scale = 12)
     private BigDecimal ath;
+
     private Double athChangePercentage;
     private LocalDateTime athDate;
 
-    //ATL data
+    // ATL data
+    @Column(precision = 30, scale = 12)
     private BigDecimal atl;
+
     private Double atlChangePercentage;
     private LocalDateTime atlDate;
 
     // supply
+    @Column(precision = 30, scale = 2)
     private BigDecimal circulatingSupply;
 }

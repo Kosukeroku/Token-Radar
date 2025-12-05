@@ -138,6 +138,7 @@ public class CoinSyncService {
                         coin.setAtl(dto.getAtl());
                         coin.setAtlChangePercentage(dto.getAtlChangePercentage());
                         coin.setCirculatingSupply(dto.getCirculatingSupply());
+                        coin.setLastUpdated(LocalDateTime.now());
 
                         if (dto.getSparklineIn7d() != null && dto.getSparklineIn7d().getPrice() != null) {
                             try {

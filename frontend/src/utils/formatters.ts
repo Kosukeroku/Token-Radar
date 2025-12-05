@@ -75,14 +75,83 @@ export const formatDateTime = (dateString: string): string => {
 
 export const formatPrice = (price: number | undefined): string => {
     if (price === undefined || price === null) return '$0.00';
-    if (price < 0.01) return `$${price.toFixed(6)}`;
-    if (price < 1) return `$${price.toFixed(4)}`;
+
+    // different amount of digits for different prices
+    if (price < 0.000001) {
+        // below 0.000001$: scientific notation
+        return `$${price.toExponential(4)}`;
+    }
+    if (price < 0.001) {
+        // 0.000001$ - 0.001$: 8 digits
+        return `$${price.toFixed(8).replace(/\.?0+$/, '')}`;
+    }
+    if (price < 0.01) {
+        // 0.001$ - 0.01$: 6 digits
+        return `$${price.toFixed(6).replace(/\.?0+$/, '')}`;
+    }
+    if (price < 1) {
+        // 0.01$ - 1$: 4 digits
+        return `$${price.toFixed(4).replace(/\.?0+$/, '')}`;
+    }
+    if (price < 10) {
+        // 1$ - 10$: 4 digits
+        return `$${price.toFixed(4).replace(/\.?0+$/, '')}`;
+    }
+    if (price < 1000) {
+        // 10$ - 1000$: 2 digits
+        return `$${price.toFixed(2)}`;
+    }
+    // > 1000$: 2 digits with thousands separator
     return `$${price.toLocaleString('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     })}`;
 };
 
+// compact version for the table
+export const formatPriceCompact = (price: number | undefined): string => {
+    if (price === undefined || price === null) return '$0';
+
+    if (price < 0.0001) {
+        return `$${price.toExponential(2)}`;
+    }
+    if (price < 10) {
+        // below 10$ - 4 digits
+        return `$${price.toFixed(4).replace(/\.?0+$/, '')}`;
+    }
+    if (price < 1000) {
+        return `$${price.toFixed(2)}`;
+    }
+    return `$${price.toLocaleString('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+    })}`;
+};
+
+// for the details page
+export const formatPriceDetailed = (price: number | undefined): string => {
+    if (price === undefined || price === null) return '$0.00';
+
+    if (price < 0.000001) {
+        return `$${price.toExponential(6)}`;
+    }
+    if (price < 0.001) {
+        return `$${price.toFixed(10).replace(/\.?0+$/, '')}`;
+    }
+    if (price < 0.01) {
+        return `$${price.toFixed(8).replace(/\.?0+$/, '')}`;
+    }
+    if (price < 10) {
+        return `$${price.toFixed(6).replace(/\.?0+$/, '')}`;
+    }
+    if (price < 1000) {
+        return `$${price.toFixed(4).replace(/\.?0+$/, '')}`;
+    }
+    return `$${price.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    })}`;
+};
 export const formatMarketCap = (marketCap: number | undefined): string => {
     if (marketCap === undefined || marketCap === null) return '$0';
     if (marketCap >= 1e12) return `$${(marketCap / 1e12).toFixed(2)}T`;

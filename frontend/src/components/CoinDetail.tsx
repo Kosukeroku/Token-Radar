@@ -9,7 +9,7 @@ import {
     formatMarketCap,
     formatNumber,
     formatPercentage,
-    formatPrice,
+    formatPriceDetailed,
     timeAgo
 } from '../utils/formatters';
 import {SparklineChart} from './SparklineChart';
@@ -97,7 +97,7 @@ const CoinDetail: React.FC = () => {
                     </div>
 
                     <div className="text-right">
-                        <div className="text-3xl font-bold">{formatPrice(coin.currentPrice)}</div>
+                        <div className="text-3xl font-bold">{formatPriceDetailed(coin.currentPrice)}</div>
                         <div
                             className={`text-xl font-semibold ${isPositive24h ? 'text-green-400' : 'text-red-400'}`}
                             aria-label={`24 hour change: ${formatPercentage(coin.priceChangePercentage24h)}`}
@@ -154,11 +154,11 @@ const CoinDetail: React.FC = () => {
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center">
                                     <span className="text-gray-400">24h High</span>
-                                    <span className="font-semibold">{formatPrice(coin.high24h)}</span>
+                                    <span className="font-semibold">{formatPriceDetailed(coin.high24h)}</span>
                                 </div>
                                 <div className="flex justify-between items-center">
                                     <span className="text-gray-400">24h Low</span>
-                                    <span className="font-semibold">{formatPrice(coin.low24h)}</span>
+                                    <span className="font-semibold">{formatPriceDetailed(coin.low24h)}</span>
                                 </div>
                             </div>
                         </div>
@@ -217,7 +217,7 @@ const CoinDetail: React.FC = () => {
                             <div>
                                 <div className="flex justify-between items-center mb-1">
                                     <span className="text-gray-400">Price</span>
-                                    <span className="font-semibold">{formatPrice(coin.ath)}</span>
+                                    <span className="font-semibold">{formatPriceDetailed(coin.ath)}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-sm">
                   <span className="text-gray-400">
@@ -280,7 +280,7 @@ const CoinDetail: React.FC = () => {
                                 </div>
                                 <div className="flex justify-between text-xs text-gray-400 mt-1">
                                     <span>0%</span>
-                                    <span>ATH: {formatPrice(coin.ath)}</span>
+                                    <span>ATH: {formatPriceDetailed(coin.ath)}</span>
                                 </div>
                             </div>
                         </div>

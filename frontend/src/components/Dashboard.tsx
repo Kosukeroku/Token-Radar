@@ -1,18 +1,18 @@
-import { useSearchParams, useNavigate } from 'react-router-dom'
-import { useCoins } from '../hooks/useCoins'
-import { useSearchCoins } from '../hooks/useSearchCoins'
-import { useDebounce } from '../hooks/useDebounce'
-import { formatPrice, formatMarketCap } from '../utils/formatters'
-import { Loader } from '../components/Loader'
-import { ErrorDisplay } from '../components/ErrorDisplay'
-import { useState, useRef, useEffect } from 'react'
+import {useNavigate, useSearchParams} from 'react-router-dom'
+import {useCoins} from '../hooks/useCoins'
+import {useSearchCoins} from '../hooks/useSearchCoins'
+import {useDebounce} from '../hooks/useDebounce'
+import {formatMarketCap, formatPriceCompact} from '../utils/formatters'
+import {Loader} from '../components/Loader'
+import {ErrorDisplay} from '../components/ErrorDisplay'
+import {useEffect, useRef, useState} from 'react'
 
 const SearchInput: React.FC<{
     value: string;
     onChange: (value: string) => void;
     loading?: boolean;
     inputRef: React.RefObject<HTMLInputElement | null>;
-}> = ({ value, onChange, loading, inputRef }) => (
+}> = ({value, onChange, loading, inputRef}) => (
     <div className="relative max-w-md">
         <input
             ref={inputRef}
@@ -43,8 +43,8 @@ const Dashboard: React.FC = () => {
     const currentPage = Math.max(0, parseInt(searchParams.get('page') || '1') - 1)
 
     // main table and search
-    const { data: coinsData, isLoading: coinsLoading, error: coinsError } = useCoins(currentPage)
-    const { data: searchData, isLoading: searchLoading, error: searchError } = useSearchCoins(debouncedSearchTerm)
+    const {data: coinsData, isLoading: coinsLoading, error: coinsError} = useCoins(currentPage)
+    const {data: searchData, isLoading: searchLoading, error: searchError} = useSearchCoins(debouncedSearchTerm)
 
     // which data to show
     const isSearchMode = !!debouncedSearchTerm.trim()
@@ -78,7 +78,7 @@ const Dashboard: React.FC = () => {
         navigate(`/coin/${coinId}`)
     }
 
-    if (isLoading) return <Loader />
+    if (isLoading) return <Loader/>
 
     if (error) {
         return (
@@ -129,7 +129,8 @@ const Dashboard: React.FC = () => {
                                 <th className="text-right py-3 px-4 text-gray-400 font-semibold text-sm">Price</th>
                                 <th className="text-right py-3 px-4 text-gray-400 font-semibold text-sm">24h Change</th>
                                 <th className="text-right py-3 px-4 text-gray-400 font-semibold text-sm">Market Cap</th>
-                                <th className="text-right py-3 px-4 text-gray-400 font-semibold text-sm">Volume (24h)</th>
+                                <th className="text-right py-3 px-4 text-gray-400 font-semibold text-sm">Volume (24h)
+                                </th>
                             </tr>
                             </thead>
                         </table>
@@ -196,7 +197,7 @@ const Dashboard: React.FC = () => {
                                     </div>
                                 </td>
                                 <td className="py-3 px-4 text-right text-white text-sm">
-                                    {formatPrice(coin.currentPrice)}
+                                    {formatPriceCompact(coin.currentPrice)}
                                 </td>
                                 <td className="py-3 px-4 text-right">
                                     <span className={`text-sm ${
