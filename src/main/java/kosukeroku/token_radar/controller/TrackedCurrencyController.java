@@ -6,15 +6,20 @@ import kosukeroku.token_radar.dto.TrackedCurrencyResponseDto;
 import kosukeroku.token_radar.security.UserDetailsImpl;
 import kosukeroku.token_radar.service.TrackedCurrencyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/tracked-currencies")
+@RequiredArgsConstructor
 public class TrackedCurrencyController {
 
     private final TrackedCurrencyService trackedCurrencyService;
@@ -46,4 +51,5 @@ public class TrackedCurrencyController {
                 trackedCurrencyService.getUserTrackedCurrencies(userDetails.getId());
         return ResponseEntity.ok(trackedCurrencies);
     }
+
 }

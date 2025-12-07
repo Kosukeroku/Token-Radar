@@ -35,7 +35,7 @@ services:
 
       # JWT
       JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-604800000}
     ports:
       - "8080:8080"
     volumes:

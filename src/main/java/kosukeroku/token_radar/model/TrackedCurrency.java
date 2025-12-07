@@ -23,7 +23,6 @@ public class TrackedCurrency {
     @JoinColumn(name = "coin_id")
     private Coin coin;
 
-    private Double threshold;
 
     private LocalDateTime addedAt = LocalDateTime.now();
 }

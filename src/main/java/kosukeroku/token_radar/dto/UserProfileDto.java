@@ -1,16 +1,18 @@
 package kosukeroku.token_radar.dto;
 
-import kosukeroku.token_radar.model.TrackedCurrency;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
-public class UserResponseDto {
+public class UserProfileDto {
     private Long id;
     private String username;
     private String email;
-    private List<TrackedCurrency> trackedCurrencies;
+    private LocalDateTime createdAt;
+    private List<TrackedCurrencyResponseDto> trackedCurrencies;
+    private Long trackedCount;
 }

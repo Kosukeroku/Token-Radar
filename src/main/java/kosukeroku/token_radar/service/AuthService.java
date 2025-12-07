@@ -3,7 +3,6 @@ package kosukeroku.token_radar.service;
 import kosukeroku.token_radar.dto.AuthResponseDto;
 import kosukeroku.token_radar.dto.LoginRequestDto;
 import kosukeroku.token_radar.dto.RegisterRequestDto;
-import kosukeroku.token_radar.dto.UserResponseDto;
 import kosukeroku.token_radar.exception.AuthenticationException;
 import kosukeroku.token_radar.exception.EmailAlreadyExistsException;
 import kosukeroku.token_radar.exception.UsernameAlreadyExistsException;

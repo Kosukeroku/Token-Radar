@@ -13,6 +13,8 @@ import kosukeroku.token_radar.repository.TrackedCurrencyRepository;
 import kosukeroku.token_radar.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +52,6 @@ public class TrackedCurrencyService {
         TrackedCurrency trackedCurrency = new TrackedCurrency();
         trackedCurrency.setUser(user);
         trackedCurrency.setCoin(coin);
-        trackedCurrency.setThreshold(request.getThreshold());
 
         TrackedCurrency saved = trackedCurrencyRepository.save(trackedCurrency);
         return mapToResponseDto(saved);
@@ -70,9 +71,15 @@ public class TrackedCurrencyService {
     public List<TrackedCurrencyResponseDto> getUserTrackedCurrencies(Long userId) {
         log.debug("Fetching tracked currencies for user: {}", userId);
 
-        return trackedCurrencyRepository.findByUserId(userId).stream()
+        return trackedCurrencyRepository.findByUserIdOrderByCoinMarketCapRankAsc(userId).stream()
                 .map(this::mapToResponseDto)
                 .collect(Collectors.toList());
+    }
+
+
+    @Transactional(readOnly = true)
+    public Long getUserTrackedCount(Long userId) {
+        return trackedCurrencyRepository.countByUserId(userId);
     }
 
     private TrackedCurrencyResponseDto mapToResponseDto(TrackedCurrency trackedCurrency) {
@@ -82,10 +89,21 @@ public class TrackedCurrencyService {
         dto.setCoinName(trackedCurrency.getCoin().getName());
         dto.setCoinSymbol(trackedCurrency.getCoin().getSymbol());
         dto.setCoinImageUrl(trackedCurrency.getCoin().getImageUrl());
-        dto.setThreshold(trackedCurrency.getThreshold());
         dto.setAddedAt(trackedCurrency.getAddedAt());
         dto.setCurrentPrice(trackedCurrency.getCoin().getCurrentPrice());
         dto.setPriceChange24h(trackedCurrency.getCoin().getPriceChange24h());
+        dto.setPriceChangePercentage24h(trackedCurrency.getCoin().getPriceChangePercentage24h());
+        dto.setMarketCapRank(trackedCurrency.getCoin().getMarketCapRank());
+
+        // getting data from the linked Coin
+        Coin coin = trackedCurrency.getCoin();
+        dto.setCurrentPrice(coin.getCurrentPrice());
+        dto.setPriceChange24h(coin.getPriceChange24h());
+        dto.setPriceChangePercentage24h(coin.getPriceChangePercentage24h());
+        dto.setMarketCapRank(coin.getMarketCapRank());
+
+        dto.setMarketCap(coin.getMarketCap());
+        dto.setTotalVolume(coin.getTotalVolume());
         return dto;
     }
 }

@@ -33,8 +33,15 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
+                        // public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/coins/**").permitAll()
+
+                        // profile and tracking endpoints require authentication
+                        .requestMatchers("/api/profile/**").authenticated()
+                        .requestMatchers("/api/tracked-currencies/**").authenticated()
+
+                        // any other request requires authentication
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);

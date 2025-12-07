@@ -12,8 +12,12 @@ public class TrackedCurrencyResponseDto {
     private String coinName;
     private String coinSymbol;
     private String coinImageUrl;
-    private Double threshold;
     private LocalDateTime addedAt;
     private BigDecimal currentPrice;
     private Double priceChange24h;
+    private Double priceChangePercentage24h;
+    private Integer marketCapRank;
+
+    private BigDecimal marketCap;
+    private BigDecimal totalVolume;
 }

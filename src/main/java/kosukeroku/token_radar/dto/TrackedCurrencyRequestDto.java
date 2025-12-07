@@ -8,5 +8,4 @@ public class TrackedCurrencyRequestDto {
     @NotNull
     private String coinId;
 
-    private Double threshold;
 }

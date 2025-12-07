@@ -3,6 +3,8 @@ package kosukeroku.token_radar.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +19,8 @@ public class User {
     private String username;
     private String email;
     private String password;
+    private LocalDateTime createdAt;
+
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<TrackedCurrency> trackedCurrencies = new ArrayList<>();
