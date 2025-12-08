@@ -1,18 +1,50 @@
 import { useState, useEffect } from 'react';
 
+// checks whether token is expired
+const isTokenExpired = (token: string): boolean => {
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const exp = payload.exp * 1000; // converting into milliseconds
+        return Date.now() > exp;
+    } catch {
+        return true; // if the token cannot be parsed, it is invalid
+    }
+};
+
 export const useAuth = () => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const checkAuth = () => {
-            const token = localStorage.getItem('token');
-            setIsAuthenticated(!!token);
-            setLoading(false);
-        };
+    const checkAuth = () => {
+        const token = localStorage.getItem('token');
 
+        if (!token) {
+            setIsAuthenticated(false);
+            setLoading(false);
+            return false;
+        }
+
+        // checking whether token is expired
+        if (isTokenExpired(token)) {
+            localStorage.removeItem('token');
+            setIsAuthenticated(false);
+            setLoading(false);
+            return false;
+        }
+
+        setIsAuthenticated(true);
+        setLoading(false);
+        return true;
+    };
+
+    useEffect(() => {
         // initial check
         checkAuth();
+
+        // checking every minute for expiration
+        const interval = setInterval(() => {
+            checkAuth();
+        }, 60000); // 1 minute
 
         // listening changes in localStorage
         const handleStorageChange = (e: StorageEvent) => {
@@ -28,6 +60,7 @@ export const useAuth = () => {
         window.addEventListener('authChange', handleAuthChange);
 
         return () => {
+            clearInterval(interval);
             window.removeEventListener('storage', handleStorageChange);
             window.removeEventListener('authChange', handleAuthChange);
         };

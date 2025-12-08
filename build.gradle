@@ -32,13 +32,13 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-cache'
 
-    // WebFlux для WebClient
+    // WebFlux for WebClient
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
-    // Redis
+    // redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
-    // Database
+    // database
     runtimeOnly 'org.postgresql:postgresql'
 
     // JWT
@@ -54,7 +54,7 @@ dependencies {
     implementation 'org.mapstruct:mapstruct:1.5.5.Final'
     annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
 
-    // Testing
+    // testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

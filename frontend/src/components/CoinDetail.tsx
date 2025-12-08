@@ -13,6 +13,8 @@ import {
     timeAgo
 } from '../utils/formatters';
 import {SparklineChart} from './SparklineChart';
+import TrackButton from "./TrackButton.tsx";
+import CoinAvatar from "./CoinAvatar.tsx";
 
 const CoinDetail: React.FC = () => {
     const {coinId} = useParams<{ coinId: string }>();
@@ -23,9 +25,6 @@ const CoinDetail: React.FC = () => {
         window.scrollTo(0, 0);
     }, [coinId]);
 
-    const handleTrackClick = () => {
-        alert('Track functionality coming soon!');
-    };
 
     // parsing sparkline
     const sparklineData = useMemo(() => {
@@ -68,30 +67,25 @@ const CoinDetail: React.FC = () => {
             <div className="bg-gray-800 rounded-xl p-6 mb-6">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                        <img
-                            src={coin.imageUrl}
-                            alt={`${coin.name} logo`}
-                            className="w-16 h-16 rounded-full"
-                            onError={(e) => {
-                                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/64';
-                            }}
+                        <CoinAvatar
+                            imageUrl={coin.imageUrl}
+                            symbol={coin.symbol}
+                            size={64}
+                            className="w-16 h-16"
                         />
                         <div>
                             <div className="flex items-center gap-3">
                                 <h1 className="text-3xl font-bold">{coin.name}</h1>
-                                <button
-                                    onClick={handleTrackClick}
-                                    aria-label={`Track ${coin.name}`}
-                                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg text-sm font-semibold transition-colors"
-                                >
-                                    Track
-                                </button>
+                                <TrackButton
+                                    coinId={coin.id}
+                                    coinName={coin.name}
+                                />
                             </div>
                             <div className="flex items-center gap-2 mt-1">
                                 <span className="text-gray-400 text-lg">{coin.symbol.toUpperCase()}</span>
                                 <span className="bg-gray-700 px-2 py-1 rounded text-sm">
-                  Rank #{coin.marketCapRank}
-                </span>
+                Rank #{coin.marketCapRank}
+            </span>
                             </div>
                         </div>
                     </div>
@@ -126,7 +120,7 @@ const CoinDetail: React.FC = () => {
                                 />
                             ) : (
                                 <div className="flex items-center justify-center h-full text-gray-400">
-                                    No chart data available
+                                No chart data available
                                 </div>
                             )}
                         </div>

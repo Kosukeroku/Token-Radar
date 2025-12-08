@@ -21,7 +21,7 @@ export interface CoinDetail {
     atlChangePercentage: number;
     atlDate: string;
     circulatingSupply: number;
-    sparklineData: string; // JSON строка
+    sparklineData: string;
     lastUpdated: string;
 }
 

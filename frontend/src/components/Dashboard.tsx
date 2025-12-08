@@ -2,7 +2,7 @@ import {useNavigate, useSearchParams} from 'react-router-dom'
 import {useCoins} from '../hooks/useCoins'
 import {useSearchCoins} from '../hooks/useSearchCoins'
 import {useDebounce} from '../hooks/useDebounce'
-import {formatMarketCap, formatPriceCompact} from '../utils/formatters'
+import CoinTable from './CoinTable';
 import {Loader} from '../components/Loader'
 import {ErrorDisplay} from '../components/ErrorDisplay'
 import {useEffect, useRef, useState} from 'react'
@@ -159,65 +159,11 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* table */}
-            <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full min-w-[700px]">
-                        <thead>
-                        <tr className="border-b border-gray-700">
-                            <th className="text-left py-3 px-2 text-gray-400 font-semibold text-sm w-12">#</th>
-                            <th className="text-left py-3 px-2 text-gray-400 font-semibold text-sm">Coin</th>
-                            <th className="text-right py-3 px-4 text-gray-400 font-semibold text-sm">Price</th>
-                            <th className="text-right py-3 px-4 text-gray-400 font-semibold text-sm">24h Change</th>
-                            <th className="text-right py-3 px-4 text-gray-400 font-semibold text-sm">Market Cap</th>
-                            <th className="text-right py-3 px-4 text-gray-400 font-semibold text-sm">Volume (24h)</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {coins.map((coin) => (
-                            <tr
-                                key={coin.id}
-                                className="border-b border-gray-700 hover:bg-gray-700/50 cursor-pointer transition-colors duration-150"
-                                onClick={() => handleRowClick(coin.id)}
-                            >
-                                <td className="py-3 px-2 text-gray-400 text-sm w-12">{coin.marketCapRank}</td>
-                                <td className="py-3 px-2">
-                                    <div className="flex items-center space-x-2">
-                                        <img
-                                            src={coin.imageUrl}
-                                            alt={coin.name}
-                                            className="w-8 h-8"
-                                            onError={(e) => {
-                                                (e.target as HTMLImageElement).src = 'https://via.placeholder.com/32';
-                                            }}
-                                        />
-                                        <div>
-                                            <div className="font-medium text-white text-sm">{coin.name}</div>
-                                            <div className="text-gray-400 text-xs">{coin.symbol.toUpperCase()}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className="py-3 px-4 text-right text-white text-sm">
-                                    {formatPriceCompact(coin.currentPrice)}
-                                </td>
-                                <td className="py-3 px-4 text-right">
-                                    <span className={`text-sm ${
-                                        coin.priceChangePercentage24h >= 0 ? 'text-green-400' : 'text-red-400'
-                                    }`}>
-                                        {coin.priceChangePercentage24h?.toFixed(2)}%
-                                    </span>
-                                </td>
-                                <td className="py-3 px-4 text-right text-white text-sm">
-                                    {formatMarketCap(coin.marketCap)}
-                                </td>
-                                <td className="py-3 px-4 text-right text-white text-sm">
-                                    {formatMarketCap(coin.totalVolume)}
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <CoinTable
+                coins={coins || []}
+                onRowClick={handleRowClick}
+                showTrackButton={true}
+            />
 
             {/* pagination (showing only if not in the search mode) */}
             {!isSearchMode && coinsData && coinsData.totalPages > 1 && (
