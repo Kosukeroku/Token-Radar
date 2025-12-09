@@ -1,89 +1,117 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import { api } from '../services/api';
+import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import { Loader2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { useAuth } from "@/hooks/useAuth"
+import { api } from "@/services/api"
+import { cn } from "@/lib/utils"
+import type { TrackButtonProps } from "@/types/coin"
 
-interface TrackButtonProps {
-    coinId: string;
-    coinName?: string;
-    onTrackChange?: (isTracked: boolean) => void;
-}
-
-const TrackButton: React.FC<TrackButtonProps> = ({
-                                                     coinId,
-                                                     coinName = '',
-                                                     onTrackChange
-                                                 }) => {
-    const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
-    const [isTracked, setIsTracked] = useState(false);
-    const [loading, setLoading] = useState(false);
+export function TrackButton({
+                                coinId,
+                                coinName = "",
+                                size = "default",
+                                variant = "outline",
+                                className,
+                                showText = true,
+                                tableStyle = false,
+                                onTrackChange,
+                            }: TrackButtonProps) {
+    const navigate = useNavigate()
+    const { isAuthenticated } = useAuth()
+    const [isTracked, setIsTracked] = useState(false)
+    const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         if (isAuthenticated) {
-            checkTrackStatus();
+            checkTrackStatus()
         }
-    }, [coinId, isAuthenticated]);
+    }, [coinId, isAuthenticated])
 
     const checkTrackStatus = async () => {
-        if (!isAuthenticated) return;
+        if (!isAuthenticated) return
 
         try {
-            const response = await api.get('/tracked-currencies');
-            const isTracked = response.data.some((tc: any) => tc.coinId === coinId);
-            setIsTracked(isTracked);
+            const response = await api.get('/tracked-currencies')
+            const trackedCurrencies: Array<{ coinId: string }> = response.data
+            const isTracked = trackedCurrencies.some((tc) => tc.coinId === coinId)
+            setIsTracked(isTracked)
         } catch (err) {
-            console.error('Failed to check track status:', err);
+            console.error('Failed to check track status:', err)
         }
-    };
+    }
 
     const handleClick = async (e: React.MouseEvent) => {
-        e.stopPropagation();
-        setLoading(true);
+        e.stopPropagation()
+        setLoading(true)
 
         if (!isAuthenticated) {
-            navigate('/login');
-            return;
+            navigate('/login')
+            return
         }
 
         try {
             if (isTracked) {
-                await api.delete(`/tracked-currencies/${coinId}`);
-                setIsTracked(false);
-                onTrackChange?.(false);
+                await api.delete(`/tracked-currencies/${coinId}`)
+                setIsTracked(false)
+                onTrackChange?.(false)
             } else {
-                await api.post('/tracked-currencies', { coinId });
-                setIsTracked(true);
-                onTrackChange?.(true);
+                await api.post('/tracked-currencies', { coinId })
+                setIsTracked(true)
+                onTrackChange?.(true)
             }
         } catch (err: any) {
-            console.error('Failed to toggle track:', err);
-            const errorMsg = err.response?.data?.message || `Failed to ${isTracked ? 'untrack' : 'track'} ${coinName || 'coin'}`;
-            alert(errorMsg);
+            console.error('Failed to toggle track:', err)
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    };
+    }
+
+    const getButtonStyles = () => {
+        if (tableStyle) {
+            return "h-7 px-3 text-xs font-medium min-w-[65px]"
+        }
+
+        switch (size) {
+            case "sm":
+                return "h-8 px-3 text-sm"
+            case "lg":
+                return "h-10 px-6 text-base"
+            case "icon":
+                return "h-9 w-9 p-0"
+            default:
+                return "h-9 px-4 text-sm"
+        }
+    }
+
+    const buttonText = tableStyle
+        ? (isTracked ? "Untrack" : "Track")
+        : (showText ? (isTracked ? "Untrack" : "Track") : "")
+
+    const buttonContent = loading ? (
+        <Loader2 className="h-3 w-3 animate-spin" />
+    ) : (
+        buttonText
+    )
 
     return (
-        <button
+        <Button
             onClick={handleClick}
             disabled={loading}
-            className={`
-        px-2 py-1 text-xs min-w-[55px]
-        ${isTracked ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}
-        text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed
-        font-medium
-      `}
-            title={isTracked ? `Untrack ${coinName}` : `Track ${coinName}`}
-        >
-            {loading ? (
-                <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white mx-auto"></div>
-            ) : (
-                isTracked ? 'Untrack' : 'Track'
+            variant={variant}
+            size={tableStyle ? "sm" : size}
+            className={cn(
+                getButtonStyles(),
+                "font-medium transition-all duration-200",
+                isTracked
+                    ? "bg-red-500 text-white hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700"
+                    : "bg-green-500 text-white hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700",
+                tableStyle && "hover:translate-y-[-1px] hover:shadow-sm",
+                className
             )}
-        </button>
-    );
-};
-
-export default TrackButton;
+            aria-label={isTracked ? `Untrack ${coinName}` : `Track ${coinName}`}
+        >
+            {buttonContent}
+        </Button>
+    )
+}

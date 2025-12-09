@@ -1,202 +1,157 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import { api } from '../services/api';
-import { formatDate } from '../utils/formatters';
-import { Loader } from './Loader';
-import { ErrorDisplay } from './ErrorDisplay';
-import CoinTable from "./CoinTable";
+import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { ArrowLeft } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { DataTable } from "./DataTable"
+import { useAuth } from "@/hooks/useAuth"
+import { api } from "@/services/api"
+import { formatDate } from "@/utils/formatters"
+import { Loader } from "./Loader"
+import { ErrorDisplay } from "./ErrorDisplay"
+import type { TrackedCurrency, UserProfile, Coin } from "@/types/coin"
 
-// Определяем типы
-interface TrackedCurrencyDto {
-    id: number;
-    coinId: string;
-    coinName: string;
-    coinSymbol: string;
-    coinImageUrl: string;
-    addedAt: string;
-    currentPrice: number;
-    priceChangePercentage24h: number;
-    marketCapRank: number;
-    marketCap: number;
-    totalVolume: number;
-}
-
-interface UserProfileDto {
-    id: number;
-    username: string;
-    email: string;
-    createdAt: string;
-    trackedCurrencies: TrackedCurrencyDto[];
-    trackedCount: number;
-}
-
-interface CoinTableData {
-    id: string;
-    name: string;
-    symbol: string;
-    imageUrl: string;
-    currentPrice: number;
-    priceChangePercentage24h: number;
-    marketCapRank: number;
-    marketCap: number;
-    totalVolume: number;
-}
-
-const Profile: React.FC = () => {
-    const navigate = useNavigate();
-    const { isAuthenticated, loading: authLoading } = useAuth();
-
-    const [profile, setProfile] = useState<UserProfileDto | null>(null);
-    const [trackedCoins, setTrackedCoins] = useState<TrackedCurrencyDto[]>([]);
-    const [trackedCount, setTrackedCount] = useState<number>(0);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
+export function Profile() {
+    const navigate = useNavigate()
+    const { isAuthenticated, loading: authLoading } = useAuth()
+    const [profile, setProfile] = useState<UserProfile | null>(null)
+    const [trackedCoins, setTrackedCoins] = useState<TrackedCurrency[]>([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState("")
 
     useEffect(() => {
         if (!isAuthenticated && !authLoading) {
-            navigate('/login');
-            return;
+            navigate('/login')
+            return
         }
 
         if (isAuthenticated) {
-            fetchProfileData();
+            fetchProfileData()
         }
-    }, [isAuthenticated, authLoading, navigate]);
+    }, [isAuthenticated, authLoading, navigate])
 
     const fetchProfileData = async () => {
         try {
-            setLoading(true);
-            const response = await api.get<UserProfileDto>('/profile');
-            setProfile(response.data);
-            setTrackedCoins(response.data.trackedCurrencies || []);
-            setTrackedCount(response.data.trackedCount || response.data.trackedCurrencies.length);
+            setLoading(true)
+            const response = await api.get<UserProfile>('/profile')
+            setProfile(response.data)
+            setTrackedCoins(response.data.trackedCurrencies || [])
         } catch (err: any) {
-            setError('Failed to load profile data');
-            console.error(err);
+            setError('Failed to load profile data')
+            console.error(err)
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    };
+    }
 
     const handleUntrack = async (coinId: string) => {
         try {
-            await api.delete(`/tracked-currencies/${coinId}`);
+            await api.delete(`/tracked-currencies/${coinId}`)
+            setTrackedCoins(prev => prev.filter(coin => coin.coinId !== coinId))
 
-            // refreshing the coins list
-            const updatedCoins = trackedCoins.filter(coin => coin.coinId !== coinId);
-            setTrackedCoins(updatedCoins);
-            setTrackedCount(updatedCoins.length);
-
-            // refreshing the profile
-            setProfile((prev) => prev ? {
+            setProfile(prev => prev ? {
                 ...prev,
-                trackedCurrencies: prev.trackedCurrencies.filter((coin) => coin.coinId !== coinId),
-                trackedCount: updatedCoins.length
-            } : null);
+                trackedCurrencies: prev.trackedCurrencies.filter(coin => coin.coinId !== coinId),
+                trackedCount: prev.trackedCount - 1
+            } : null)
         } catch (err) {
-            console.error('Failed to untrack currency:', err);
+            console.error('Failed to untrack currency:', err)
+            fetchProfileData()
         }
-    };
-
-    const handleRowClick = (coinId: string) => {
-        navigate(`/coin/${coinId}`);
-    };
-
-    // transforms TrackedCurrency into CoinTable format
-    const mapToCoinTableData = (): CoinTableData[] => {
-        if (!trackedCoins || trackedCoins.length === 0) return [];
-
-        return trackedCoins.map(tc => ({
-            id: tc.coinId,
-            name: tc.coinName,
-            symbol: tc.coinSymbol,
-            imageUrl: tc.coinImageUrl,
-            currentPrice: tc.currentPrice,
-            priceChangePercentage24h: tc.priceChangePercentage24h,
-            marketCapRank: tc.marketCapRank,
-            marketCap: tc.marketCap,
-            totalVolume: tc.totalVolume
-        }));
-    };
-
-    // gets added dates
-    const getAddedDates = (): Record<string, string> => {
-        if (!trackedCoins || trackedCoins.length === 0) return {};
-
-        const dates: Record<string, string> = {};
-        trackedCoins.forEach(tc => {
-            dates[tc.coinId] = formatDate(tc.addedAt);
-        });
-        return dates;
-    };
-
-    if (authLoading) return <Loader />;
-
-    if (!isAuthenticated) {
-        return null;
     }
 
-    if (loading) return <Loader />;
+    const handleRowClick = (coin: Coin) => {
+        navigate(`/coin/${coin.id}`)
+    }
+
+    // transforming data for DataTable
+    const tableData: Coin[] = trackedCoins.map(tc => ({
+        id: tc.coinId,
+        name: tc.coinName,
+        symbol: tc.coinSymbol,
+        imageUrl: tc.coinImageUrl,
+        currentPrice: tc.currentPrice,
+        priceChangePercentage24h: tc.priceChangePercentage24h,
+        marketCapRank: tc.marketCapRank,
+        marketCap: tc.marketCap,
+        totalVolume: tc.totalVolume
+    }))
+
+    const addedDates = trackedCoins.reduce((acc, tc) => {
+        acc[tc.coinId] = formatDate(tc.addedAt)
+        return acc
+    }, {} as Record<string, string>)
+
+    if (authLoading || loading) return <Loader />
+
+    if (!isAuthenticated) {
+        return null
+    }
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gray-900 text-white p-6">
+            <div className="container mx-auto px-4 py-8">
                 <ErrorDisplay
                     message={error}
                     onRetry={fetchProfileData}
                 />
             </div>
-        );
+        )
     }
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white p-4 md:p-6">
-            {/* Back to Dashboard button */}
-            <button
+        <div className="container mx-auto px-4 py-8">
+            <Button
+                variant="ghost"
                 onClick={() => navigate('/')}
-                className="mb-6 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg flex items-center gap-2 transition-colors"
+                className="mb-6 text-base h-11 px-5"
             >
-                ← Back to Dashboard
-            </button>
+                <ArrowLeft className="mr-2 h-5 w-5" />
+                Back to Dashboard
+            </Button>
 
-            {/* info header */}
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold mb-2">{profile?.username}</h1>
-                <div className="text-gray-400">
-                    <p className="text-sm">
-                        Joined {profile?.createdAt ? formatDate(profile.createdAt) : 'recently'}
-                    </p>
-                    <p className="text-sm mt-1">
-                        Tracking {trackedCount} cryptocurrencies
-                    </p>
-                </div>
-            </div>
+            <Card className="mb-6">
+                <CardHeader>
+                    <CardTitle className="text-2xl">{profile?.username}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-2 text-muted-foreground">
+                        <p>Joined {profile?.createdAt ? formatDate(profile.createdAt) : 'recently'}</p>
+                        {/* ИСПОЛЬЗУЕМ trackedCount из профиля или длину массива */}
+                        <p>Tracking {profile?.trackedCount || trackedCoins.length} cryptocurrencies</p>
+                        <p>Email: {profile?.email}</p>
+                    </div>
+                </CardContent>
+            </Card>
 
-            {/* table */}
-            <CoinTable
-                coins={mapToCoinTableData()}
-                onRowClick={handleRowClick}
-                showActions={true}
-                onUntrack={handleUntrack} //
-                showAddedDate={true}
-                addedDates={getAddedDates()}
-            />
-
-            {/* message for 0 tracked coins */}
-            {trackedCoins.length === 0 && (
-                <div className="text-center mt-8 text-gray-400">
-                    <p className="mb-4">You are not tracking any cryptocurrencies yet.</p>
-                    <a
-                        href="/"
-                        className="text-blue-400 hover:text-blue-300 font-medium"
-                    >
-                        Browse cryptocurrencies to start tracking →
-                    </a>
-                </div>
-            )}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Tracked Cryptocurrencies</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    {trackedCoins.length > 0 ? (
+                        <DataTable
+                            coins={tableData}
+                            onRowClick={handleRowClick}
+                            showActions={true}
+                            onUntrack={handleUntrack}
+                            showAddedDate={true}
+                            addedDates={addedDates}
+                            showTrackButton={false}
+                        />
+                    ) : (
+                        <div className="text-center py-12">
+                            <h3 className="text-xl font-semibold mb-2">No tracked coins yet</h3>
+                            <p className="text-muted-foreground mb-6">
+                                Start tracking cryptocurrencies to see them here
+                            </p>
+                            <Button onClick={() => navigate('/')}>
+                                Browse cryptocurrencies to start tracking
+                            </Button>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
         </div>
-    );
-};
-
-export default Profile;
+    )
+}

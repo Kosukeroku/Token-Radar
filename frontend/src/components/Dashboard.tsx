@@ -1,68 +1,38 @@
-import {useNavigate, useSearchParams} from 'react-router-dom'
-import {useCoins} from '../hooks/useCoins'
-import {useSearchCoins} from '../hooks/useSearchCoins'
-import {useDebounce} from '../hooks/useDebounce'
-import CoinTable from './CoinTable';
-import {Loader} from '../components/Loader'
-import {ErrorDisplay} from '../components/ErrorDisplay'
-import {useEffect, useRef, useState} from 'react'
+import { useState, useRef } from "react"
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Search } from "lucide-react"
+import { DataTable } from "./DataTable"
+import { useCoins } from "@/hooks/useCoins"
+import { useSearchCoins } from "@/hooks/useSearchCoins"
+import { useDebounce } from "@/hooks/useDebounce"
+import { Loader } from "./Loader"
+import { ErrorDisplay } from "./ErrorDisplay"
 
-const SearchInput: React.FC<{
-    value: string;
-    onChange: (value: string) => void;
-    loading?: boolean;
-    inputRef: React.RefObject<HTMLInputElement | null>;
-}> = ({value, onChange, loading, inputRef}) => (
-    <div className="relative max-w-md">
-        <input
-            ref={inputRef}
-            type="text"
-            placeholder="Search coins..."
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            className="w-full bg-gray-800 border border-gray-700 rounded-lg px-4 py-2 pl-10 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-        />
-        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-            🔍
-        </div>
-        {loading && (
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-            </div>
-        )}
-    </div>
-)
-
-const Dashboard: React.FC = () => {
+export function Dashboard() {
+    const navigate = useNavigate()
     const [searchParams, setSearchParams] = useSearchParams()
     const [searchTerm, setSearchTerm] = useState('')
     const searchInputRef = useRef<HTMLInputElement>(null)
-    const navigate = useNavigate() // ← ДОБАВИЛИ useNavigate
 
     const debouncedSearchTerm = useDebounce(searchTerm, 300)
     const currentPage = Math.max(0, parseInt(searchParams.get('page') || '1') - 1)
 
-    // main table and search
-    const {data: coinsData, isLoading: coinsLoading, error: coinsError} = useCoins(currentPage)
-    const {data: searchData, isLoading: searchLoading, error: searchError} = useSearchCoins(debouncedSearchTerm)
+    const { data: coinsData, isLoading: coinsLoading, error: coinsError } = useCoins(currentPage)
+    const { data: searchData, isLoading: searchLoading, error: searchError } = useSearchCoins(debouncedSearchTerm)
 
-    // which data to show
     const isSearchMode = !!debouncedSearchTerm.trim()
     const coins = isSearchMode ? searchData : coinsData?.coins
     const isLoading = isSearchMode ? searchLoading : coinsLoading
     const error = isSearchMode ? searchError : coinsError
 
-    useEffect(() => {
-        if (searchInputRef.current) {
-            searchInputRef.current.focus()
-        }
-    }, [])
+    const isEmptySearch = isSearchMode && !isLoading && (!searchData || searchData.length === 0)
 
-    useEffect(() => {
-        if (searchInputRef.current && !searchLoading && searchTerm) {
-            searchInputRef.current.focus()
-        }
-    }, [searchLoading, searchTerm])
+    const handleRowClick = (coin: any) => {
+        navigate(`/coin/${coin.id}`)
+    }
 
     const handlePageChange = (newPage: number) => {
         const newSearchParams = new URLSearchParams(searchParams)
@@ -74,123 +44,122 @@ const Dashboard: React.FC = () => {
         setSearchParams(newSearchParams)
     }
 
-    const handleRowClick = (coinId: string) => {
-        navigate(`/coin/${coinId}`)
+    const handleClearSearch = () => {
+        setSearchTerm('')
+        if (searchInputRef.current) {
+            searchInputRef.current.focus()
+        }
     }
 
-    if (isLoading) return <Loader/>
+    if (isLoading) return <Loader />
 
     if (error) {
         return (
-            <div className="min-h-screen bg-gray-900 text-white p-4">
-                <div className="mb-6">
-                    <h1 className="text-3xl font-bold mb-2 font-sans">
-                        {isSearchMode ? 'Search Results' : 'Live Cryptocurrency Prices'}
-                    </h1>
-                    <SearchInput
-                        value={searchTerm}
-                        onChange={setSearchTerm}
-                        loading={searchLoading}
-                        inputRef={searchInputRef}
-                    />
-                </div>
-                <ErrorDisplay
-                    message={`Failed to load data: ${error.message}`}
-                    onRetry={() => window.location.reload()}
-                />
-            </div>
-        )
-    }
-
-    if (!coins?.length) {
-        return (
-            <div className="min-h-screen bg-gray-900 text-white p-4">
-                {/* keeping header and search */}
-                <div className="mb-6">
-                    <h1 className="text-3xl font-bold mb-2 font-sans">
-                        {isSearchMode ? 'Search Results' : 'Live Cryptocurrency Prices'}
-                    </h1>
-                    <SearchInput
-                        value={searchTerm}
-                        onChange={setSearchTerm}
-                        loading={searchLoading}
-                        inputRef={searchInputRef}
-                    />
-                </div>
-
-                {/* empty table with 'no coins found' message */}
-                <div className="bg-gray-800 rounded-lg border border-gray-700 overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full min-w-[700px]">
-                            <thead>
-                            <tr className="border-b border-gray-700">
-                                <th className="text-left py-3 px-2 text-gray-400 font-semibold text-sm w-12">#</th>
-                                <th className="text-left py-3 px-2 text-gray-400 font-semibold text-sm">Coin</th>
-                                <th className="text-right py-3 px-4 text-gray-400 font-semibold text-sm">Price</th>
-                                <th className="text-right py-3 px-4 text-gray-400 font-semibold text-sm">24h Change</th>
-                                <th className="text-right py-3 px-4 text-gray-400 font-semibold text-sm">Market Cap</th>
-                                <th className="text-right py-3 px-4 text-gray-400 font-semibold text-sm">Volume (24h)
-                                </th>
-                            </tr>
-                            </thead>
-                        </table>
-                    </div>
-                    <div className="flex justify-center items-center py-16 text-gray-400">
-                        {isSearchMode ? "No coins found for your search" : "No cryptocurrencies found"}
-                    </div>
-                </div>
+            <div className="container mx-auto px-4 py-8">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Live Cryptocurrency Prices</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="relative max-w-md mb-6">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                            <Input
+                                ref={searchInputRef}
+                                placeholder="Search coins..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="pl-10"
+                            />
+                        </div>
+                        <ErrorDisplay
+                            message={`Failed to load data: ${error.message}`}
+                            onRetry={() => window.location.reload()}
+                        />
+                    </CardContent>
+                </Card>
             </div>
         )
     }
 
     return (
-        <div className="min-h-screen bg-gray-900 text-white p-4">
-            {/* header and search */}
-            <div className="mb-6">
-                <h1 className="text-3xl font-bold mb-2 font-sans">
-                    {isSearchMode ? 'Search Results' : 'Live Cryptocurrency Prices'}
-                </h1>
-                <SearchInput
-                    value={searchTerm}
-                    onChange={setSearchTerm}
-                    loading={searchLoading}
-                    inputRef={searchInputRef}
-                />
-            </div>
+        <div className="container mx-auto px-4 py-8">
+            <Card className="mb-6">
+                <CardHeader>
+                    <CardTitle className="text-3xl font-bold">
+                        {isSearchMode ? 'Search Results' : 'Live Cryptocurrency Prices'}
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0"> {/* Добавляем pt-0 */}
+                    <div className="relative max-w-md">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                        <Input
+                            ref={searchInputRef}
+                            placeholder="Search coins..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="pl-10"
+                        />
+                    </div>
+                </CardContent>
+            </Card>
 
-            {/* table */}
-            <CoinTable
-                coins={coins || []}
-                onRowClick={handleRowClick}
-                showTrackButton={true}
-            />
+            {isEmptySearch ? (
+                <Card>
+                    <CardContent className="p-12 text-center">
+                        <div className="mb-4">
+                            <Search className="h-12 w-12 mx-auto text-muted-foreground" />
+                        </div>
+                        <h3 className="text-xl font-semibold mb-2">No coins found</h3>
+                        <p className="text-muted-foreground mb-6">
+                            No cryptocurrencies match "{debouncedSearchTerm}"
+                        </p>
+                        <Button
+                            onClick={handleClearSearch}
+                            variant="outline"
+                        >
+                            Clear search
+                        </Button>
+                    </CardContent>
+                </Card>
+            ) : (
+                <Card>
+                    <CardContent className="p-6">
+                        <DataTable
+                            coins={coins || []}
+                            onRowClick={handleRowClick}
+                            showTrackButton={true} // ← Включаем Track кнопки
+                            isLoading={isLoading}
+                        />
 
-            {/* pagination (showing only if not in the search mode) */}
-            {!isSearchMode && coinsData && coinsData.totalPages > 1 && (
-                <div className="flex justify-center mt-6 space-x-2">
-                    <button
-                        onClick={() => handlePageChange(Math.max(0, currentPage - 1))}
-                        disabled={currentPage === 0}
-                        className="px-3 py-1 bg-gray-800 border border-gray-700 rounded text-white text-sm disabled:opacity-50 hover:bg-gray-700 transition-colors"
-                    >
-                        Previous
-                    </button>
-
-                    <span className="px-3 py-1 text-sm">
-                        Page {currentPage + 1} of {coinsData.totalPages}
-                    </span>
-
-                    <button
-                        onClick={() => handlePageChange(Math.min(coinsData.totalPages - 1, currentPage + 1))}
-                        disabled={currentPage >= coinsData.totalPages - 1}
-                        className="px-3 py-1 bg-gray-800 border border-gray-700 rounded text-white text-sm disabled:opacity-50 hover:bg-gray-700 transition-colors"
-                    >
-                        Next
-                    </button>
-                </div>
+                        {/* pagination */}
+                        {!isSearchMode && coinsData && coinsData.totalPages > 1 && (
+                            <div className="flex items-center justify-between mt-6 pt-6 border-t">
+                                <div className="text-sm text-muted-foreground">
+                                    Page {currentPage + 1} of {coinsData.totalPages}
+                                </div>
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handlePageChange(Math.max(0, currentPage - 1))}
+                                        disabled={currentPage === 0}
+                                    >
+                                        Previous
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handlePageChange(Math.min(coinsData.totalPages - 1, currentPage + 1))}
+                                        disabled={currentPage >= coinsData.totalPages - 1}
+                                    >
+                                        Next
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
             )}
         </div>
     )
 }
-
-export default Dashboard

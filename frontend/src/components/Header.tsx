@@ -1,106 +1,65 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useNavigate } from "react-router-dom"
+import { Button } from "@/components/ui/button"
+import { useAuth } from "@/hooks/useAuth"
+import { Skeleton } from "@/components/ui/skeleton"
+import { LogOut } from "lucide-react"
+import { Logo } from "./Logo"
 
-const Header: React.FC = () => {
-    const navigate = useNavigate();
-    const { isAuthenticated, loading, logout } = useAuth();
+export function Header() {
+    const navigate = useNavigate()
+    const { isAuthenticated, loading, logout } = useAuth()
 
-    const handleLogin = () => {
-        navigate('/login');
-    };
+    const handleLogin = () => navigate('/login')
+    const handleSignUp = () => navigate('/register')
 
-    const handleSignUp = () => {
-        navigate('/register');
-    };
-
-    const handleLogout = () => {
-        logout();
-        navigate('/');
-    };
-
-    // showing spinner while loading auth status
     if (loading) {
         return (
-            <header className="bg-gray-800 border-b border-gray-700 py-3 px-4 md:px-6">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                        <Link to="/" className="flex items-center space-x-2 hover:opacity-90 transition-opacity">
-                            <img
-                                src="/logo.png"
-                                alt="Token Radar Logo"
-                                className="w-10 h-10"
-                            />
-                            <h1 className="text-2xl font-bold text-white font-serif italic hidden md:block">
-                                Token Radar
-                            </h1>
-                        </Link>
-                    </div>
-                    <div className="w-24 h-8 bg-gray-700 rounded animate-pulse"></div>
+            <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
+                    <Skeleton className="h-8 w-32" />
+                    <Skeleton className="h-9 w-24" />
                 </div>
             </header>
-        );
+        )
     }
 
     return (
-        <header className="bg-gray-800 border-b border-gray-700 py-3 px-4 md:px-6">
-            <div className="flex items-center justify-between">
-                {/* logo and name */}
-                <div className="flex items-center space-x-3">
-                    <Link to="/" className="flex items-center space-x-2 hover:opacity-90 transition-opacity">
-                        <img
-                            src="/logo.png"
-                            alt="Token Radar Logo"
-                            className="w-10 h-10"
-                        />
-                        <h1 className="text-2xl font-bold text-white font-serif italic hidden md:block">
-                            Token Radar
-                        </h1>
-                        <h1 className="text-2xl font-bold text-white font-serif italic md:hidden">
-                            TR
-                        </h1>
-                    </Link>
-                </div>
+        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
+                {/* logo */}
+                <Logo size="md" showText={true} />
 
-                {/* authorization buttons */}
-                <div className="flex items-center space-x-3">
+                {/* navigation */}
+                <div className="flex items-center gap-3">
                     {isAuthenticated ? (
                         <>
-                            <Link
-                                to="/profile"
-                                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm font-medium transition-colors"
+                            <Button
+                                variant="ghost"
+                                onClick={() => navigate('/profile')}
                             >
                                 My Profile
-                            </Link>
-                            <button
-                                onClick={handleLogout}
-                                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium transition-colors"
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                onClick={logout}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
                             >
-                                Log Out
-                            </button>
+                                <LogOut className="h-4 w-4 mr-2" />
+                                Logout
+                            </Button>
                         </>
                     ) : (
                         <>
-                            <button
-                                onClick={handleLogin}
-                                className="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg text-sm font-medium transition-colors"
-                                aria-label="Log in to your account"
-                            >
+                            <Button variant="ghost" onClick={handleLogin}>
                                 Log In
-                            </button>
-                            <button
-                                onClick={handleSignUp}
-                                className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
-                                aria-label="Sign up for Token Radar"
-                            >
+                            </Button>
+                            <Button onClick={handleSignUp}>
                                 Sign Up
-                            </button>
+                            </Button>
                         </>
                     )}
                 </div>
             </div>
         </header>
-    );
-};
-
-export default Header;
+    )
+}
