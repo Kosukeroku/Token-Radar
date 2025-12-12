@@ -13,5 +13,8 @@ public interface UserMapper {
     @Mapping(target = "trackedCount", ignore = true)
     UserProfileDto toDto(User user);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "trackedCurrencies", ignore = true)
     User toEntity(RegisterRequestDto request);
 }
