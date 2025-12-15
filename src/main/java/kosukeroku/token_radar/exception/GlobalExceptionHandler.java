@@ -209,4 +209,36 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler(AlertNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleAlertNotFound(AlertNotFoundException ex,
+                                                                HttpServletRequest request) {
+        log.warn("Alert not found: {}", ex.getMessage());
+
+        ErrorResponseDto error = ErrorResponseDto.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error("Alert Not Found")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(AlertValidationException.class)
+    public ResponseEntity<ErrorResponseDto> handleAlertValidation(AlertValidationException ex,
+                                                                  HttpServletRequest request) {
+        log.warn("Alert validation error: {}", ex.getMessage());
+
+        ErrorResponseDto error = ErrorResponseDto.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Alert Validation Failed")
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
 }

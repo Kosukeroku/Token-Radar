@@ -3,6 +3,7 @@ package kosukeroku.token_radar.service;
 import kosukeroku.token_radar.dto.CoinGeckoCoinDto;
 import kosukeroku.token_radar.mapper.CoinMapper;
 import kosukeroku.token_radar.model.Coin;
+import kosukeroku.token_radar.model.PriceAlert;
 import kosukeroku.token_radar.repository.CoinRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +28,7 @@ public class CoinSyncService {
 
     private final CoinGeckoService coinGeckoService;
     private final CoinMapper coinMapper;
+    private final PriceAlertCheckerService alertCheckerService;
     private final CoinRepository coinRepository;
 
     // updating all (names, icons, prices) info once a day
@@ -171,6 +173,16 @@ public class CoinSyncService {
 
                         coin.setLastUpdated(LocalDateTime.now());
                         coinRepository.save(coin);
+
+                        // checking for alerts
+                        if (dto.getCurrentPrice() != null) {
+                            List<PriceAlert> triggered = alertCheckerService
+                                    .checkAndTriggerAlerts(dto.getId(), dto.getCurrentPrice());
+
+                            if (!triggered.isEmpty()) {
+                                log.info("Price triggered {} alerts for {}", triggered.size(), dto.getId());
+                            }
+                        }
                     });
                 });
                 log.debug("Updated extended prices for {} coins", priceDtos.size());
