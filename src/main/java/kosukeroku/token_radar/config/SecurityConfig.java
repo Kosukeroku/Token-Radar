@@ -4,6 +4,7 @@ import kosukeroku.token_radar.security.JwtAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -33,6 +34,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
+
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
                         // public endpoints
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/coins/**").permitAll()
@@ -40,6 +44,9 @@ public class SecurityConfig {
                         // profile and tracking endpoints require authentication
                         .requestMatchers("/api/profile/**").authenticated()
                         .requestMatchers("/api/tracked-currencies/**").authenticated()
+
+                        // alert endpoints require authentication
+                        .requestMatchers("/api/alerts/**").authenticated()
 
                         // any other request requires authentication
                         .anyRequest().authenticated()
