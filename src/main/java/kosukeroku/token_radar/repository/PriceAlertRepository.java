@@ -46,5 +46,8 @@ public interface PriceAlertRepository extends JpaRepository<PriceAlert, Long> {
     @Query("SELECT pa FROM PriceAlert pa JOIN FETCH pa.coin c WHERE pa.user.id = :userId")
     List<PriceAlert> findByUserId(@Param("userId") Long userId);
 
+    @Query("SELECT pa FROM PriceAlert pa WHERE pa.user.id = :userId AND pa.status IN (:statuses) ORDER BY COALESCE(pa.triggeredAt, pa.createdAt) DESC")
+    List<PriceAlert> findNotificationsForUser(@Param("userId") Long userId, @Param("statuses") List<AlertStatus> statuses);
+
     List<PriceAlert> findByUserIdAndCoinId(Long userId, String coinId);
 }

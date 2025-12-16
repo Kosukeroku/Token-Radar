@@ -209,23 +209,21 @@ public class PriceAlertService {
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
     public List<PriceAlertResponseDto> getUserNotifications(Long userId) {
         log.info("Getting notifications for user {}", userId);
 
-        List<PriceAlert> triggered = priceAlertRepository.findByUserIdAndStatus(
-                userId, AlertStatus.TRIGGERED);
-        List<PriceAlert> read = priceAlertRepository.findByUserIdAndStatus(
-                userId, AlertStatus.READ);
+        List<AlertStatus> statuses = List.of(AlertStatus.TRIGGERED, AlertStatus.READ);
+        List<PriceAlert> notifications = priceAlertRepository.findNotificationsForUser(userId, statuses);
 
-        List<PriceAlert> allNotifications = new ArrayList<>();
-        allNotifications.addAll(triggered);
-        allNotifications.addAll(read);
+        long triggeredCount = notifications.stream()
+                .filter(a -> a.getStatus() == AlertStatus.TRIGGERED)
+                .count();
+        long readCount = notifications.size() - triggeredCount;
 
         log.info("Found {} notifications for user {} ({} triggered, {} read)",
-                allNotifications.size(), userId, triggered.size(), read.size());
+                notifications.size(), userId, triggeredCount, readCount);
 
-        return allNotifications.stream()
+        return notifications.stream()
                 .map(priceAlertMapper::toDto)
                 .collect(Collectors.toList());
     }

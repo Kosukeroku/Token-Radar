@@ -89,7 +89,7 @@ export function Dashboard() {
                         {isSearchMode ? 'Search Results' : 'Live Cryptocurrency Prices'}
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-0"> {/* Добавляем pt-0 */}
+                <CardContent className="pt-0">
                     <div className="relative max-w-md">
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                         <Input
@@ -127,8 +127,9 @@ export function Dashboard() {
                         <DataTable
                             coins={coins || []}
                             onRowClick={handleRowClick}
-                            showTrackButton={true} // ← Включаем Track кнопки
+                            showTrackButton={true}
                             isLoading={isLoading}
+                            dashboardMode={true}
                         />
 
                         {/* pagination */}

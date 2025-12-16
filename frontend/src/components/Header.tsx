@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth"
 import { Skeleton } from "@/components/ui/skeleton"
 import { LogOut } from "lucide-react"
 import { Logo } from "./Logo"
+import {NotificationBell} from "@/components/NotificationBell.tsx";
 
 export function Header() {
     const navigate = useNavigate()
@@ -33,6 +34,7 @@ export function Header() {
                 <div className="flex items-center gap-3">
                     {isAuthenticated ? (
                         <>
+                            <NotificationBell />
                             <Button
                                 variant="ghost"
                                 onClick={() => navigate('/profile')}

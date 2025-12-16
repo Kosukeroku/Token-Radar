@@ -164,6 +164,11 @@ export const formatMarketCap = (marketCap: number | undefined): string => {
 
 };
 
+export const formatVolume = (volume: number | undefined): string => {
+    if (volume === undefined || volume === null) return '$0';
+    return `$${formatNumber(volume)}`;
+};
+
 export const timeAgo = (dateString: string): string => {
     try {
         if (!dateString) return 'unknown';

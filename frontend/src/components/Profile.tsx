@@ -117,7 +117,6 @@ export function Profile() {
                 <CardContent>
                     <div className="space-y-2 text-muted-foreground">
                         <p>Joined {profile?.createdAt ? formatDate(profile.createdAt) : 'recently'}</p>
-                        {/* ИСПОЛЬЗУЕМ trackedCount из профиля или длину массива */}
                         <p>Tracking {profile?.trackedCount || trackedCoins.length} cryptocurrencies</p>
                         <p>Email: {profile?.email}</p>
                     </div>
@@ -138,6 +137,7 @@ export function Profile() {
                             showAddedDate={true}
                             addedDates={addedDates}
                             showTrackButton={false}
+                            isLoading={loading}
                         />
                     ) : (
                         <div className="text-center py-12">

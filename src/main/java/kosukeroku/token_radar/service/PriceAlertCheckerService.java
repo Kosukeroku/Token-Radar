@@ -22,11 +22,11 @@ public class PriceAlertCheckerService {
 
     private final PriceAlertRepository priceAlertRepository;
 
-    private static final double BUFFER_ZONE = 0.2;
-    private static final String PRICE_ABOVE_ALERT_MESSAGE = "%s reached your target! Price: $%s (target: $%s)";
-    private static final String PRICE_BELOW_ALERT_MESSAGE = "%s dropped below your alert! Price: $%s (target: $%s)";
-    private static final String PERCENTAGE_UP_ALERT_MESSAGE = "%s is up %s%%! Current price: $%s";
-    private static final String PERCENTAGE_DOWN_ALERT_MESSAGE = "%s is down %s%%! Current price: $%s";
+    //private static final double BUFFER_ZONE = 0.2; // not using this (for now?)
+    private static final String PRICE_ABOVE_ALERT_MESSAGE = "%s reached your price target (%s)! Price: $%s";
+    private static final String PRICE_BELOW_ALERT_MESSAGE = "%s dropped below your price alert (%s)! Price: $%s";
+    private static final String PERCENTAGE_UP_ALERT_MESSAGE = "%s reached your %% target (%s%%)! Current price: $%s";
+    private static final String PERCENTAGE_DOWN_ALERT_MESSAGE = "%s dropped below your %% target (%s%%)! Current price: $%s";
 
     @Transactional
     public List<PriceAlert> checkAndTriggerAlerts(String coinId, BigDecimal currentPrice) {
@@ -52,16 +52,6 @@ public class PriceAlertCheckerService {
     private boolean shouldTrigger(PriceAlert alert, BigDecimal currentPrice) {
         if (alert.getStatus() != AlertStatus.ACTIVE) {
             return false;
-        }
-
-        // checking buffer zone
-        if (alert.getLastCheckedPrice() != null) {
-            BigDecimal percentageChange = calculatePercentageChange(
-                    alert.getLastCheckedPrice(), currentPrice);
-
-            if (percentageChange.abs().compareTo(BigDecimal.valueOf(BUFFER_ZONE)) < 0) {
-                return false;
-            }
         }
 
         alert.setLastCheckedPrice(currentPrice);
@@ -123,11 +113,11 @@ public class PriceAlertCheckerService {
         switch (alert.getType()) {
             case PRICE_ABOVE:
                 return String.format(PRICE_ABOVE_ALERT_MESSAGE,
-                        coinName, formattedPrice, formattedThreshold);
+                        coinName, formattedThreshold, formattedPrice);
 
             case PRICE_BELOW:
                 return String.format(PRICE_BELOW_ALERT_MESSAGE,
-                        coinName, formattedPrice, formattedThreshold);
+                        coinName, formattedThreshold, formattedPrice);
 
             case PERCENTAGE_UP:
                 return String.format(PERCENTAGE_UP_ALERT_MESSAGE,
