@@ -91,7 +91,6 @@
   text-align: center;
 }
 
-/* Убираем hover если нет onRowClick */
 .crypto-table tr.cursor-pointer:hover {
   background-color: hsl(var(--accent) / 0.5);
 }

@@ -19,7 +19,7 @@ export const SparklineChart: React.FC<SparklineChartProps> = ({
             if (containerRef.current) {
                 const { width } = containerRef.current.getBoundingClientRect();
                 setDimensions({
-                    width: Math.max(width, 400), // Минимальная ширина 400px
+                    width: Math.max(width, 400),
                     height: 250
                 });
             }
