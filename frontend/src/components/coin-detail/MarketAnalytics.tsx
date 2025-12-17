@@ -15,12 +15,11 @@ export function MarketAnalytics({ coin }: MarketAnalyticsProps) {
     const volumeRatio = (coin.totalVolume / coin.marketCap) * 100
     const athPercentage = (coin.currentPrice / coin.ath) * 100
 
-    // Определяем статус для Volume/MCap Ratio - ИЗМЕНЯЕМ ЦВЕТ НА КРАСНЫЙ
     const getVolumeStatus = (ratio: number) => {
         if (ratio > 10) return {
             text: 'High trading volume relative to market cap',
             color: 'text-green-600 dark:text-green-400',
-            size: 'text-sm' // единый размер шрифта
+            size: 'text-sm'
         }
         if (ratio > 3.5) return {
             text: 'Healthy trading activity',
@@ -60,7 +59,7 @@ export function MarketAnalytics({ coin }: MarketAnalyticsProps) {
     const getVolumeRatioColor = (ratio: number) => {
         if (ratio > 10) return 'text-green-600 dark:text-green-400'
         if (ratio > 5) return 'text-yellow-600 dark:text-yellow-400'
-        return 'text-red-600 dark:text-red-400' // МЕНЯЕМ НА КРАСНЫЙ
+        return 'text-red-600 dark:text-red-400'
     }
 
     const volumeRatioColor = getVolumeRatioColor(volumeRatio)
