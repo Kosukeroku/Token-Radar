@@ -6,6 +6,7 @@ import kosukeroku.token_radar.model.User;
 import kosukeroku.token_radar.model.enums.AlertStatus;
 import kosukeroku.token_radar.model.enums.AlertType;
 import kosukeroku.token_radar.repository.PriceAlertRepository;
+import kosukeroku.token_radar.service.kafka.KafkaProducerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +29,9 @@ class PriceAlertCheckerServiceTest {
 
     @Mock
     private PriceAlertRepository priceAlertRepository;
+
+    @Mock
+    private KafkaProducerService kafkaProducerService;
 
     @InjectMocks
     private PriceAlertCheckerService priceAlertCheckerService;

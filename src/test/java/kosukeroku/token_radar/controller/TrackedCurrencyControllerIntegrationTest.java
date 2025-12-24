@@ -11,6 +11,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -41,6 +43,15 @@ class TrackedCurrencyControllerIntegrationTest {
 
     @MockBean
     private TrackedCurrencyService trackedCurrencyService;
+
+    @MockBean
+    private KafkaTemplate<String, Object> kafkaTemplate;
+
+    @MockBean
+    private SimpMessagingTemplate simpMessagingTemplate;
+
+    @MockBean
+    private kosukeroku.token_radar.service.kafka.KafkaConsumerService kafkaConsumerService;
 
     private UserDetailsImpl createTestUserDetails() {
         return new UserDetailsImpl(
