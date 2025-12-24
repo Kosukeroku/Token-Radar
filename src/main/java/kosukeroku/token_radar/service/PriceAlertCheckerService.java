@@ -4,6 +4,7 @@ import kosukeroku.token_radar.model.PriceAlert;
 import kosukeroku.token_radar.model.enums.AlertStatus;
 import kosukeroku.token_radar.model.enums.AlertType;
 import kosukeroku.token_radar.repository.PriceAlertRepository;
+import kosukeroku.token_radar.service.kafka.KafkaProducerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.List;
 public class PriceAlertCheckerService {
 
     private final PriceAlertRepository priceAlertRepository;
+    private final KafkaProducerService kafkaProducerService;
 
     //private static final double BUFFER_ZONE = 0.2; // not using this (for now?)
     private static final String PRICE_ABOVE_ALERT_MESSAGE = "%s reached your price target (%s)! Price: $%s";
@@ -98,6 +100,8 @@ public class PriceAlertCheckerService {
         alert.setTriggeredAt(LocalDateTime.now());
         alert.setTriggeredPrice(currentPrice);
         alert.setNotificationMessage(generateNotificationMessage(alert, currentPrice));
+
+        kafkaProducerService.sendAlertTriggered(alert);
 
         log.debug("Alert {} triggered for user {}: {} reached {} (current: ${})",
                 alert.getId(), alert.getUser().getId(),

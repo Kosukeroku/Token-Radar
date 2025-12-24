@@ -35,6 +35,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
 
+                        .requestMatchers("/ws/**", "/sockjs/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
                         // public endpoints
@@ -74,6 +75,12 @@ public class SecurityConfig {
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
+
+        // websocket headers
+        configuration.setExposedHeaders(List.of(
+                "Access-Control-Allow-Origin",
+                "Access-Control-Allow-Credentials"
+        ));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
