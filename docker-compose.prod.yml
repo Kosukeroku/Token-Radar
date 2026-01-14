@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   postgres:
     image: postgres:15-alpine
@@ -8,7 +10,7 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       TZ: Europe/Moscow
     volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - token-radar-network
     restart: unless-stopped
@@ -25,7 +27,7 @@ services:
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
     volumes:
-      - ./data/redis:/data
+      - redis_data:/data
     networks:
       - token-radar-network
     restart: unless-stopped
@@ -41,6 +43,9 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_log:/var/lib/zookeeper/log
     networks:
       - token-radar-network
     restart: unless-stopped
@@ -55,15 +60,19 @@ services:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka_data:/var/lib/kafka/data
     networks:
       - token-radar-network
     restart: unless-stopped
 
   backend:
-    build:
-      context: .
-      dockerfile: Dockerfile.backend
+    image: ${DOCKER_USERNAME:-yourusername}/token-radar-backend:latest
     container_name: token-radar-backend
     depends_on:
       postgres:
@@ -82,31 +91,27 @@ services:
       SPRING_REDIS_PASSWORD: ${REDIS_PASSWORD}
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       JWT_SECRET: ${JWT_SECRET}
-      JWT_EXPIRATION: ${JWT_EXPIRATION}
-      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      DOMAIN: ${DOMAIN:-localhost}
       TZ: Europe/Moscow
-    ports:
-      - "8080:8080"
     networks:
       - token-radar-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/api/coins/dashboard"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3
 
   frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile.frontend
+    image: ${DOCKER_USERNAME:-yourusername}/token-radar-frontend:latest
     container_name: token-radar-frontend
     depends_on:
       backend:
         condition: service_started
     environment:
-      VITE_API_URL: /api
-      VITE_WS_URL: ws://token-radar.com/ws
+      VITE_API_URL: ${VITE_API_URL:-/api}
+      VITE_WS_URL: ${VITE_WS_URL:-ws://localhost/ws}
     networks:
       - token-radar-network
     restart: unless-stopped
@@ -132,3 +137,10 @@ services:
 networks:
   token-radar-network:
     driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  zookeeper_data:
+  zookeeper_log:
+  kafka_data:
