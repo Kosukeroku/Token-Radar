@@ -1,7 +1,9 @@
-name: 🚀 CI/CD Pipeline
+name: CI/CD Pipeline
 
 on:
   push:
+    branches: [ main ]
+  pull_request:
     branches: [ main ]
   workflow_dispatch:
 
@@ -20,34 +22,15 @@ jobs:
           java-version: '21'
           cache: 'gradle'
 
-      - name: Cache Gradle
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
       - name: Run Backend Tests
         run: |
           chmod +x gradlew
           ./gradlew test --no-daemon --info
 
-      - name: Test Results
-        if: always()
-        run: |
-          echo "=== Test Results ==="
-          if [ -f "build/test-results/test/TEST-*.xml" ]; then
-            echo "Test reports generated"
-          else
-            echo "No test reports found"
-          fi
-
   build-and-push:
     runs-on: ubuntu-latest
     needs: test-backend
+    if: github.event_name == 'push'
 
     steps:
       - name: Checkout code
@@ -83,6 +66,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push
+    if: github.event_name == 'push'
 
     steps:
       - name: Deploy to Production
@@ -92,11 +76,11 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
-            echo "=== Starting deployment ==="
+            echo "=== 🚀 Starting deployment ==="
             
             cd /opt/token-radar
             
-            echo "Creating .env file..."
+            echo "📝 Creating .env file..."
             cat > .env << 'EOF'
             POSTGRES_DB=${{ secrets.POSTGRES_DB }}
             POSTGRES_USER=${{ secrets.POSTGRES_USER }}
@@ -119,7 +103,3 @@ jobs:
             docker-compose -f docker-compose.prod.yml up -d
             
             echo "Deployment completed!"
-            
-            sleep 10
-            echo "Container status:"
-            docker ps
