@@ -7,6 +7,7 @@ import { CoinDetail } from './components/coin-detail/CoinDetail'
 import { Login } from './components/Login'
 import { Register } from './components/Register'
 import { Profile } from './components/Profile'
+import { VersionFooter } from './components/VersionFooter'
 import ErrorBoundary from './components/ErrorBoundary'
 import './index.css'
 
@@ -33,6 +34,7 @@ function App() {
                             <Route path="/register" element={<Register />} />
                             <Route path="/profile" element={<Profile />} />
                         </Routes>
+                        <VersionFooter />
                         <Toaster />
                     </div>
                 </Router>
