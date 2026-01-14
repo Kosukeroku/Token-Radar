@@ -17,10 +17,12 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        // in case of 401, clearing token and redirecting to login
         if (error.response?.status === 401) {
             localStorage.removeItem('token');
-            window.location.href = '/login';
+
+            if (!error.config.url.includes('/auth/login')) {
+                window.location.href = '/login';
+            }
         }
         return Promise.reject(error);
     }
