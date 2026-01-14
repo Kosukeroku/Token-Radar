@@ -10,6 +10,7 @@ import org.mapstruct.Mapping;
 public interface CoinMapper {
 
     @Mapping(target = "lastUpdated", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "imageUrl", source = "image") 
     @Mapping(target = "sparklineData", ignore = true) // mapping manually in service
     @Mapping(target = "athDate", ignore = true) // mapping manually in service
     @Mapping(target = "atlDate", ignore = true) // mapping manually in service

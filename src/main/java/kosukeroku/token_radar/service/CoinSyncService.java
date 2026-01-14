@@ -1,5 +1,7 @@
 package kosukeroku.token_radar.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import kosukeroku.token_radar.dto.CoinGeckoCoinDto;
 import kosukeroku.token_radar.mapper.CoinMapper;
 import kosukeroku.token_radar.model.Coin;
@@ -12,11 +14,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.time.format.DateTimeFormatter;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -30,6 +31,21 @@ public class CoinSyncService {
     private final CoinMapper coinMapper;
     private final PriceAlertCheckerService alertCheckerService;
     private final CoinRepository coinRepository;
+
+    @PostConstruct
+    public void initialSync() {
+        log.info("Running initial coin synchronization...");
+
+        long coinCount = coinRepository.count();
+        if (coinCount == 0) {
+            log.info("Database is empty, performing initial sync...");
+
+            coinGeckoService.getTopCoins()
+                    .flatMap(this::saveCoins)
+                    .doOnError(error -> log.error("Initial coin synchronization failed: {}", error.getMessage()))
+                    .subscribe();
+        }
+    }
 
     // updating all (names, icons, prices) info once a day
     @CacheEvict(value = {"coins", "coin-prices"}, allEntries = true)
@@ -102,6 +118,7 @@ public class CoinSyncService {
                                 ));
                             } catch (Exception e) { /* ignore */ }
                         }
+
 
                         if (dto.getAthDate() != null) {
                             try {

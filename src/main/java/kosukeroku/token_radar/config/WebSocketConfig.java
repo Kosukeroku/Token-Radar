@@ -34,7 +34,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         "http://localhost:3000",
                         "http://127.0.0.1:3000",
                         "http://localhost:5173",
-                        "http://127.0.0.1:5173"
+                        "http://127.0.0.1:5173",
+						"https://token-radar.com",
+                    	"https://www.token-radar.com",
+                    	"http://token-radar.com", 
+                    	"http://www.token-radar.com"
                 )
                 .withSockJS();
     }
