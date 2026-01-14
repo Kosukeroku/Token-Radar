@@ -30,7 +30,7 @@ public class CoinGeckoService {
         log.debug("Fetching top coins with extended data from CoinGecko API...");
 
         return Flux.range(1, 5)
-                .delayElements(Duration.ofSeconds(2))
+                .delayElements(Duration.ofSeconds(30))
                 .flatMap(page -> {
                     log.debug("Fetching page {} from CoinGecko", page);
                     return webClient.get()

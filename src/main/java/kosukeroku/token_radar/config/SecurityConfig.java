@@ -65,7 +65,11 @@ public class SecurityConfig {
                 "http://localhost:3000",
                 "http://127.0.0.1:3000",
                 "http://localhost:5173",
-                "http://127.0.0.1:5173"
+                "http://127.0.0.1:5173",
+                "https://token-radar.com",
+                "http://token-radar.com",
+                "http://213.171.7.69",
+                "https://213.171.7.69"
         ));
 
         configuration.setAllowedMethods(List.of(

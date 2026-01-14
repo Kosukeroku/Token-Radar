@@ -9,8 +9,10 @@ class WebSocketService {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
-        const socket = new SockJS(`${API_URL}/ws`);
+        const wsUrl = `${window.location.protocol}//${window.location.host}/ws`;
+        
+        console.log('SockJS URL:', wsUrl);
+        const socket = new SockJS(wsUrl);
 
         this.client = new Client({
             webSocketFactory: () => socket,
@@ -19,19 +21,19 @@ class WebSocketService {
             },
             reconnectDelay: 5000,
             debug: (str) => {
-                if (str.includes('ERROR') || str.includes('CLOSED')) {
-                    console.error('WebSocket:', str);
-                }
+                console.log('STOMP:', str);
             },
             onConnect: () => {
+                console.log('? SockJS connected');
                 this.isWsActive = true;
                 this.subscribeToUserAlerts(onAlertReceived);
             },
             onDisconnect: () => {
+                console.log('?? SockJS disconnected');
                 this.isWsActive = false;
             },
             onStompError: (error) => {
-                console.error('WebSocket error:', error);
+                console.error('SockJS error:', error);
             }
         });
 
@@ -43,10 +45,11 @@ class WebSocketService {
 
         this.client.subscribe(`/user/queue/alerts`, (message) => {
             try {
+                console.log('?? Alert received via SockJS:', message.body);
                 const alert = JSON.parse(message.body);
                 callback(alert);
             } catch (error) {
-                console.error('WebSocket parse error:', error);
+                console.error('Parse error:', error);
             }
         });
     }

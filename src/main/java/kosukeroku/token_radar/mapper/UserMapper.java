@@ -14,7 +14,7 @@ public interface UserMapper {
     UserProfileDto toDto(User user);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "trackedCurrencies", ignore = true)
     User toEntity(RegisterRequestDto request);
 }
