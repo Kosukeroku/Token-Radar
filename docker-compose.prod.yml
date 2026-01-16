@@ -73,6 +73,7 @@ services:
 
   backend:
     image: ${DOCKER_USERNAME:-yourusername}/token-radar-backend:latest
+    pull_policy: always
     container_name: token-radar-backend
     depends_on:
       postgres:
@@ -105,6 +106,7 @@ services:
 
   frontend:
     image: ${DOCKER_USERNAME:-yourusername}/token-radar-frontend:latest
+    pull_policy: always
     container_name: token-radar-frontend
     depends_on:
       backend:
