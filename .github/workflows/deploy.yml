@@ -76,7 +76,7 @@ jobs:
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
-            echo "=== 🚀 Starting deployment ==="
+            echo "=== Starting deployment ==="
             
             cd /opt/token-radar
             
@@ -94,12 +94,16 @@ jobs:
             DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
             EOF
             
-            echo "Pulling latest images..."
-            docker pull ${{ secrets.DOCKER_USERNAME }}/token-radar-backend:latest || echo "Failed to pull backend, will use local"
-            docker pull ${{ secrets.DOCKER_USERNAME }}/token-radar-frontend:latest || echo "Failed to pull frontend, will use local"
             
+            echo "Logging into Docker Hub..."
+            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          
+            echo "Pulling latest images..."
+            docker pull ${{ secrets.DOCKER_USERNAME }}/token-radar-backend:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/token-radar-frontend:latest
+          
             echo "Restarting containers..."
             docker-compose -f docker-compose.prod.yml down
-            docker-compose -f docker-compose.prod.yml up -d
+            docker-compose -f docker-compose.prod.yml up -d --force-recreate
             
             echo "Deployment completed!"
