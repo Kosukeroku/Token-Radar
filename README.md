@@ -1,3 +1,5 @@
+_README in Russian: https://github.com/Kosukeroku/Token-Radar/blob/master/README-ru.md_
+
 # **Token Radar — http://token-radar.com/**  
 ## _A cryptocurrency tracking platform with detailed coin info, price updates every 10 minutes, favorite coins follow option, and real-time notifications._  
 
