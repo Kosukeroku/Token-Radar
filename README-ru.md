@@ -1,3 +1,5 @@
+_README in English: https://github.com/Kosukeroku/Token-Radar/blob/master/README.md_
+
 # **Token Radar — http://token-radar.com/**  
 ## _Платформа для мониторинга криптовалют с подробной информацией о монетах, обновлениями цен каждые 10 минут, опцией отслеживания выбранных монет и оповещениями в реальном времени._  
 ---
